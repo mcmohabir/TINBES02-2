@@ -1,52 +1,57 @@
 /*
- * @brief: Command interace for the arduino Operating System interace
- * Valentijn Hulst, 2019
- */
+   @brief: Command interace for the arduino Operating System interace
+   Valentijn Hulst, 2019
+*/
 
 #include "cmdInterface.h"
 
-char inputArray[12];
-char ch;
+const int arrSize = 12;
+char inputArray[arrSize];
 bool incomingData = false;
+static int cnt = 0;
 
 void setup()
 {
-    Serial.begin(9600);
+  Serial.begin(9600);
 }
-
 
 void loop()
 {
-    scanBuffer();
-    
+  scanBuffer();
+  printBuffer();
 }
-
 
 int scanBuffer()
 {
-    if(Serial.available() > 0)
-    {
-        inputArray = Serial.read();
-        incomingData = true;
+  char input;
 
-    }
+  while (Serial.available() > 0 && incomingData == false) {
+    input = Serial.read();
 
-    if(ch != '\n')
+    if (input != '\n')
     {
-        incomingData = false;
-        continue;
+      inputArray[cnt] = input;
+      cnt++;
+      if (cnt >= arrSize) {
+        cnt = arrSize - 1;
+      }
+      return;
     }
-     strcat(inputArray, '\0');
+    inputArray[cnt] = '\0';
+    cnt = 0;
+    incomingData = true;
+
+  }
+
+
 }
 
 void printBuffer()
 {
-    if(incomingData == true)
-    {
-        Serial.print("Your input is: ");
-        Serial.println(inputArray);
-        incomingData = false;
-    }
+  if (incomingData == true)
+  {
+    Serial.print("Your input is: ");
+    Serial.println(inputArray);
+    incomingData = false;
+  }
 }
-
-
