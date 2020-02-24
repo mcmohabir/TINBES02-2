@@ -1,9 +1,8 @@
 #include "cmdInterface.h"
 
-const int arrSize = 12;
-char inputArray[arrSize];
+
 bool incomingData = false;
-static int cnt = 0;
+
 
 void setup()
 {
@@ -13,14 +12,18 @@ void setup()
 void loop()
 {
   scanBuffer();
-  printBuffer();
+  assignCommand();
+  //printBuffer();
+
+
 }
 
 int scanBuffer()
 {
   char input;
 
-  while (Serial.available() > 0 && incomingData == false) {
+  while (Serial.available() > 0 && incomingData == false)
+  {
     input = Serial.read();
 
     if (input != '\n')
@@ -37,16 +40,93 @@ int scanBuffer()
     incomingData = true;
 
   }
-
-
 }
+
 
 void printBuffer()
 {
-  if (incomingData == true)
+  if (incomingData)
   {
     Serial.print("Your input is: ");
     Serial.println(inputArray);
     incomingData = false;
   }
+}
+
+
+void assignCommand()
+{
+  static int structArraySize = sizeof(command) / sizeof(commandType);
+  if (incomingData)
+  {
+    for (int i = 0; i < structArraySize; i++)
+    {
+      if (strcmp(inputArray, command[i].commandName) == 0)
+      {
+        void (*func)() = command[i].func;
+        func();
+      }
+    }
+    incomingData = false;
+  }
+}
+
+
+void store ()
+{
+  Serial.println("in store function");
+}
+
+
+void retreive()
+{
+  Serial.println("in retreive function");
+}
+
+
+void erase()
+{
+
+}
+
+
+void files()
+{
+
+}
+
+
+void freespace()
+{
+
+}
+
+
+void run()
+{
+
+}
+
+
+void list()
+{
+
+}
+
+
+void suspend()
+{
+
+}
+
+
+void resume()
+{
+
+}
+
+
+void kill()
+{
+
 }
