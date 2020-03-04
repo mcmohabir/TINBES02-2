@@ -1,9 +1,15 @@
 #include "commands.h"
 
-bool commandRecognized = false;
+
 char inputArray[arrSize];
+
+bool commandRecognized = false;
 bool incomingData = false;
-static int cnt = 0;
+
+
+static int commandIndex = sizeof(availableCommands) / sizeof(commands);
+static int stubIndex = sizeof(availableCommandStubs) / sizeof(stub);
+
 
 void setup()
 {
@@ -30,27 +36,25 @@ int scanBuffer()
     {
       inputArray[cnt] = input;
       cnt++;
-      if (cnt >= arrSize) {
+
+      if (cnt >= arrSize)
+      {
         cnt = arrSize - 1;
       }
       return;
     }
+
     inputArray[cnt] = '\0';
     cnt = 0;
     incomingData = true;
 
   }
-
-
 }
 
 
 void assignCommand()
 {
-
-    static int commandIndex = sizeof(availableCommands) / sizeof(commands);
-
-    if(incomingData)
+   if(incomingData)
     {
         for(int i = 0; i < commandIndex; i++)
         {
@@ -69,18 +73,26 @@ void assignCommand()
           commandRecognized = false;
           return;
       }
-
-        Serial.println("Input not recognized! Available commands are: ");
-          for(int i = 0; i < commandIndex; i++)
-          {
-                Serial.println(availableCommandStubs[i].stubName);
-                Serial.println(availableCommandStubs[i].stubDescription);
-          }
-
-
+      
+      Serial.println((String)"Input '" + inputArray + "'  not recognized! Available commands are: \n");
+      printStub();
+      incomingData  = false;
     }
-    incomingData = false;
 }
+
+
+
+void printStub()
+{
+    for(int i = 0; i < stubIndex; i++)
+    {
+        //printfSerial.printf(availableCommandStubs[i].stubName);
+        Serial.print(availableCommandStubs[i].stubName);
+        Serial.print("\n");
+    }
+   
+}
+
 
 void printBuffer()
 {
