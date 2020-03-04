@@ -1,8 +1,10 @@
-#include "cmdInterface.h"
+#include "inputRoutine.h"
 
+static int commandArraySize = sizeof(command) / sizeof(commandType);
+static int stubArraySize = sizeof(commandInfo) / sizeof(info);
 
 bool incomingData = false;
-
+bool knownCmd = false;
 
 void setup()
 {
@@ -13,10 +15,8 @@ void loop()
 {
   scanBuffer();
   assignCommand();
-  //printBuffer();
-
-
 }
+
 
 int scanBuffer()
 {
@@ -53,20 +53,44 @@ void printBuffer()
   }
 }
 
+void printInfo()
+{
+  for (int i = 0; i < stubArraySize; i++)
+    {
+      Serial.println(commandInfo[i].name);
+    }
 
+    Serial.print("\n");
+}
+
+/*
+   Check if input matches an existing command and assign appropriate function
+*/
 void assignCommand()
 {
-  static int structArraySize = sizeof(command) / sizeof(commandType);
+  
   if (incomingData)
   {
-    for (int i = 0; i < structArraySize; i++)
+    for (int i = 0; i < commandArraySize; i++)
     {
-      if (strcmp(inputArray, command[i].commandName) == 0)
+      if (strcmp(inputArray, command[i].name) == 0)
       {
         void (*func)() = command[i].func;
         func();
+        knownCmd = true;
+        break;
       }
     }
+
+    if (knownCmd)
+    {
+      incomingData = false;
+      knownCmd = false;
+      return;
+    }
+
+    Serial.println((String)"Command '" + inputArray + "' not recognised. These are the available commands: \n");
+    printInfo();
     incomingData = false;
   }
 }
@@ -86,47 +110,47 @@ void retreive()
 
 void erase()
 {
-
+  Serial.println("in erase function");
 }
 
 
 void files()
 {
-
+  Serial.println("in files function");
 }
 
 
 void freespace()
 {
-
+  Serial.println("in freespace function");
 }
 
 
 void run()
 {
-
+  Serial.println("in run function");
 }
 
 
 void list()
 {
-
+  Serial.println("in list function");
 }
 
 
 void suspend()
 {
-
+  Serial.println("in suspend function");
 }
 
 
 void resume()
 {
-
+  Serial.println("in resume function");
 }
 
 
 void kill()
 {
-
+  Serial.println("in kill function");
 }
