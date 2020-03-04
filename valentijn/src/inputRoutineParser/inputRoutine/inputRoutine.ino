@@ -1,6 +1,6 @@
 #include "commands.h"
 
-
+bool commandRecognized = false;
 char inputArray[arrSize];
 bool incomingData = false;
 static int cnt = 0;
@@ -22,7 +22,8 @@ int scanBuffer()
 {
   char input;
 
-  while (Serial.available() > 0 && incomingData == false) {
+  while (Serial.available() > 0 && incomingData == false)
+  {
     input = Serial.read();
 
     if (input != '\n')
@@ -46,6 +47,7 @@ int scanBuffer()
 
 void assignCommand()
 {
+
     static int commandIndex = sizeof(availableCommands) / sizeof(commands);
 
     if(incomingData)
@@ -56,8 +58,26 @@ void assignCommand()
             {
                 void (*funPtr)() = availableCommands[i].funPtr;
                 funPtr();
+                commandRecognized = true;
+
             }
         }
+
+      if(commandRecognized)
+      {
+          incomingData = false;
+          commandRecognized = false;
+          return;
+      }
+
+        Serial.println("Input not recognized! Available commands are: ");
+          for(int i = 0; i < commandIndex; i++)
+          {
+                Serial.println(availableCommandStubs[i].stubName);
+                Serial.println(availableCommandStubs[i].stubDescription);
+          }
+
+
     }
     incomingData = false;
 }
