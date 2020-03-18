@@ -1,7 +1,9 @@
 #include "inputRoutine.h"
+#include "functions.h"
+
 
 static int commandArraySize = sizeof(command) / sizeof(commandType);
-static int stubArraySize = sizeof(commandInfo) / sizeof(info);
+//static int stubArraySize = sizeof(commandInfo) / sizeof(info);
 
 bool incomingData = false;
 bool knownCmd = false;
@@ -55,13 +57,14 @@ void printBuffer()
 
 void printInfo()
 {
-  for (int i = 0; i < stubArraySize; i++)
+  for (int i = 0; i < commandArraySize; i++)
     {
-      Serial.println(commandInfo[i].name);
+      Serial.println(command[i].name);
     }
 
     Serial.print("\n");
 }
+
 
 /*
    Check if input matches an existing command and assign appropriate function
@@ -95,10 +98,29 @@ void assignCommand()
   }
 }
 
+void readFATEntry()
+{
+
+}
+
+
+void writeFATEntry(struct function f)
+{
+  EEPROM.put(noOfFiles, f);
+  noOfFiles += sizeof(f);
+  
+}
+
+int fileInFAT(char )
+{
+  
+}
+
 
 void store ()
 {
   Serial.println("in store function");
+  
 }
 
 

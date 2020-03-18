@@ -5,6 +5,9 @@ const int arrSize = 12;
 static int cnt    = 0;
 char inputArray[arrSize];
 
+char inputCmd[arrSize];
+char inputArg[30];
+
 const int infoArgSize = 10;
 const int infoParSize = 35;
 const int infoDescSize = 65;
@@ -51,6 +54,7 @@ static commandType command[] = {
   {"kill", &kill}
 };
 
+/*
 static info commandInfo[] =
 {
   {"store", "filename, size, data", "Stores the program into EEPROM", 1},
@@ -64,4 +68,5 @@ static info commandInfo[] =
   {"resume", "pID", " Resumes a suspended process",  9},
   {"kill", "pID,", " Kills a process", 10}
 };
+*/
 #endif
