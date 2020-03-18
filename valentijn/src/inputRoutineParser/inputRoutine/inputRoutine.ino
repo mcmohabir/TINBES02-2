@@ -1,10 +1,14 @@
 #include "commands.h"
-
+//#include "files.h"
+#include <EEPROM.h>
 
 char inputArray[arrSize];
 
 bool commandRecognized = false;
 bool incomingData = false;
+
+EERef noOfFiles = EEPROM[160];
+
 
 
 static int commandIndex = sizeof(availableCommands) / sizeof(commands);
@@ -63,6 +67,11 @@ void assignCommand()
                 void (*funPtr)() = availableCommands[i].funPtr;
                 funPtr();
                 commandRecognized = true;
+                if (inputArray[i] == ' ')
+                {
+                   //seperate inputbuffer from parameter and argument and call serial.available
+                }
+                
 
             }
         }
@@ -87,7 +96,7 @@ void printStub()
     for(int i = 0; i < stubIndex; i++)
     {
         //printfSerial.printf(availableCommandStubs[i].stubName);
-        Serial.print(availableCommandStubs[i].stubName);
+        //Serial.print(availableCommandStubs[i].stubName);
         Serial.print("\n");
     }
    
@@ -104,17 +113,30 @@ void printBuffer()
   }
 }
 
-void storeFunc()
+int storeFunc(file *files, char *filename, int size, int data)
 {
+  int EEPROMStartAddress = 0;
+  for (int i = 0; i < 10; i++)
+  {
+     //byte data = fat[i];
+    EEPROM.put(EEPROMStartAddress, fat[i]);
+  }
+  
     Serial.println("store function");
+    return;
+
+
 }
 
-void retreiveFunc()
+int retreiveFunc(int address)
 {
+  byte output;
+
+
     Serial.println("retreive function");
 }
 
-void eraseFunc()
+int eraseFunc(char *fileName)
 {
     Serial.println("erase function");
 }
@@ -125,12 +147,13 @@ void filesFunc()
     Serial.println("files function");
 }
 
-void freespaceFunc()
+int freespaceFunc()
 {
+    int EEPROMLength = EEPROM.length();
     Serial.println("freespace function");
 }
 
-void runFunc()
+int runFunc(char *fileName)
 {
     Serial.println("run function");
 }
@@ -140,18 +163,18 @@ void listFunc()
     Serial.println("list function");
 }
 
-void suspendFunc()
+int suspendFunc(int pID)
 {
     Serial.println("suspend function");
 }
 
 
-void resumeFunc()
+int resumeFunc(int pID)
 {
     Serial.println("resume function");
 }
 
-void killFunc()
+int killFunc(int pID)
 {
     Serial.println("kill function");
 }

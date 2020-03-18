@@ -1,6 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "files.h"
+
 const int arrSize = 12;
 static int cnt = 0;
 
@@ -9,16 +11,17 @@ const int stubParamSize = 35;
 const int stupDescSize = 65;
 
 void printBuffer();
-void storeFunc();
-void retreiveFunc();
-void eraseFunc();
+int storeFunc(file *files, char *fileName, int size, int data);
+int retreiveFunc(int address);
+int eraseFunc(char *fileName);
 void filesFunc();
-void freespaceFunc();
-void runFunc();
+void assignCommand();
+int freespaceFunc();
+int runFunc(char *fileName);
 void listFunc();
-void suspendFunc();
-void resumeFunc();
-void killFunc();
+int suspendFunc(int pID);
+int resumeFunc(int pID);
+int killFunc(int pID);
 
 
 
