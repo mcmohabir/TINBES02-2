@@ -1,9 +1,13 @@
 #ifndef INPUTROUTINE_H
 #define INPUTROUTINE_H
 
+#define MAX_COMMAND_ARGS 3
 const int arrSize = 12;
 static int cnt    = 0;
-char inputArray[arrSize];
+
+char** curArgs = new char*[MAX_COMMAND_ARGS];
+char* curCommandBuf = new char[arrSize];
+//char curArgBuf[arrSize];
 
 char inputCmd[arrSize];
 char inputArg[30];
@@ -12,6 +16,7 @@ const int infoArgSize = 10;
 const int infoParSize = 35;
 const int infoDescSize = 65;
 
+int curArgIter = 0;
 
 void printBuffer();
 void assignCommand();
@@ -30,8 +35,10 @@ void kill();
 typedef struct {
   char name[arrSize];
   void *func;
-  //  int commandId;
-  //  String stub;
+  int commandID;
+  char fileName[arrSize];
+  int size;
+  int processID;
 } commandType;
 
 typedef struct {
@@ -41,7 +48,7 @@ typedef struct {
   int id;
 } info;
 
-static commandType command[] = {
+static commandType commandArray[] = {
   {"store", &store},
   {"retreive", &retreive},
   {"erase", &erase},

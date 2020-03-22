@@ -2,11 +2,13 @@
 #include "functions.h"
 
 
-static int commandArraySize = sizeof(command) / sizeof(commandType);
-//static int stubArraySize = sizeof(commandInfo) / sizeof(info);
+static int commandArraySize = sizeof(commandArray) / sizeof(commandType);
 
 bool incomingData = false;
+bool firstCommand = false;
 bool knownCmd = false;
+
+char inputCommand[arrSize];
 
 void setup()
 {
@@ -16,7 +18,7 @@ void setup()
 void loop()
 {
   scanBuffer();
-  assignCommand();
+  printBufferArray();
 }
 
 
@@ -28,57 +30,136 @@ int scanBuffer()
   {
     input = Serial.read();
 
-    if (input != '\n')
+    if (input != 'n')
     {
-      inputArray[cnt] = input;
-      cnt++;
-      if (cnt >= arrSize) {
-        cnt = arrSize - 1;
+      if (!firstCommand)
+        firstCommand = writeCommand(input);
+
+      else {
+        curArgIter += writeArg(input);
       }
       return;
     }
-    inputArray[cnt] = '\0';
-    cnt = 0;
+
+    reset();
     incomingData = true;
 
   }
 }
 
-
-void printBuffer()
+void reset()
 {
-  if (incomingData)
+  curCommandBuf[0] = '\0';
+  for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
   {
-    Serial.print("Your input is: ");
-    Serial.println(inputArray);
-    incomingData = false;
+    curArgs[i][0] = '\0';
   }
+  curArgIter = 0;
+  firstCommand = false;
 }
 
-void printInfo()
+bool writeCommand(char inputChar)
 {
-  for (int i = 0; i < commandArraySize; i++)
-    {
-      Serial.println(command[i].name);
-    }
+  if (inputChar == ' ' || inputChar == '\n')
+    return true;
 
-    Serial.print("\n");
+  curCommandBuf = chrcat(curCommandBuf, inputChar);
+  return false;
+}
+
+bool writeArg(char inputChar)
+{
+  if (inputChar == ' ' || inputChar == '\n')
+    return true;
+
+
+  curArgs[curArgIter] = chrcat(curArgs[curArgIter], inputChar);
+  return false;
+}
+
+char* chrcat(char* appendTo, char what)
+{
+  byte len = strlen(appendTo);
+  if (len == (arrSize - 1)) return appendTo;
+
+  appendTo[len] = what;
+  appendTo[len + 1] = 0;
+  return appendTo;
+}
+
+/*
+  void arguments()
+  {
+  if (firstCommand)
+  {
+    for (int i = 0; i < commandArraySize; i++)
+    {
+      if (strcmp(inputCommand, commandArray[i].name) == 0)
+      {
+        commandType command;
+        strcpy(command.name, commandArray[i].name);
+        command.commandID = commandArray[i].commandID;
+
+        switch (command.commandID)
+        {
+          case 1:   //store
+            command.fileName = secondArgument;
+            break;
+          case 2:   //retreive
+            break;
+          case 3:   //erase
+            break;
+          case 6:   //run
+            break;
+          case 8:   //suspend
+            command.id = secondArgument;
+            break;
+          case 9:   //resume
+            break;
+          case 10:  //kill
+            break;
+        }
+
+      }
+    }
+  }
+  }
+*/
+
+void printBufferArray()
+{
+  int argBufSize = sizeof(curArgs) / curArgIter;
+  if (incomingData)
+  {
+    Serial.print("Your command is: ");
+    Serial.println(curCommandBuf);
+
+    Serial.print("Your arguments are: ");
+    for (int i = 0; i < argBufSize + 1; i++)
+    {
+      Serial.print(" ");
+      Serial.print(curArgs[i]);
+    }
+    Serial.println();
+
+    incomingData = false;
+  }
 }
 
 
 /*
    Check if input matches an existing command and assign appropriate function
 */
-void assignCommand()
-{
-  
+/*
+  void assignCommand()
+  {
   if (incomingData)
   {
     for (int i = 0; i < commandArraySize; i++)
     {
-      if (strcmp(inputArray, command[i].name) == 0)
+      if (strcmp(bufferArray, commandArray[i].name) == 0)
       {
-        void (*func)() = command[i].func;
+        void (*func)() = commandArray[i].func;
         func();
         knownCmd = true;
         break;
@@ -92,35 +173,35 @@ void assignCommand()
       return;
     }
 
-    Serial.println((String)"Command '" + inputArray + "' not recognised. These are the available commands: \n");
+    Serial.println((String)"Command '" + bufferArray + "' not recognised. These are the available commands: \n");
     printInfo();
     incomingData = false;
   }
-}
+  }
 
-void readFATEntry()
-{
+  void readFATEntry()
+  {
 
-}
+  }
 
 
-void writeFATEntry(struct function f)
-{
+  void writeFATEntry(struct function f)
+  {
   EEPROM.put(noOfFiles, f);
   noOfFiles += sizeof(f);
-  
-}
 
-int fileInFAT(char )
-{
-  
-}
+  }
 
+  int fileInFAT(char )
+  {
+
+  }
+*/
 
 void store ()
 {
   Serial.println("in store function");
-  
+
 }
 
 
@@ -175,4 +256,15 @@ void resume()
 void kill()
 {
   Serial.println("in kill function");
+}
+
+
+void printInfo()
+{
+  for (int i = 0; i < commandArraySize; i++)
+  {
+    Serial.println(commandArray[i].name);
+  }
+
+  Serial.print("\n");
 }
