@@ -3,20 +3,21 @@
 
 #define MAX_COMMAND_ARGS 3
 const int arrSize = 12;
-static int cnt    = 0;
+
+int curArgIter = 0;
 
 char** curArgs = new char*[MAX_COMMAND_ARGS];
 char* curCommandBuf = new char[arrSize];
-//char curArgBuf[arrSize];
-
-char inputCmd[arrSize];
-char inputArg[30];
 
 const int infoArgSize = 10;
 const int infoParSize = 35;
 const int infoDescSize = 65;
 
-int curArgIter = 0;
+bool incomingData = false;
+bool firstCommand = false;
+bool knownCmd = false;
+
+bool done = false;
 
 void printBuffer();
 void assignCommand();
