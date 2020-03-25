@@ -6,6 +6,7 @@ char inputArray[arrSize];
 
 bool commandRecognized = false;
 bool incomingData = false;
+bool initialCommand = false;
 
 EERef noOfFiles = EEPROM[160];
 
@@ -22,10 +23,18 @@ void setup()
 
 void loop()
 {
+  //scanBuffer();
+  //assignCommand();
+  //printBuffer();
+  //printBufferArray();
+  terminal();
+
+}
+
+void terminal()
+{
   scanBuffer();
   assignCommand();
-  //printBuffer();
-
 }
 
 int scanBuffer()
@@ -38,24 +47,74 @@ int scanBuffer()
 
     if (input != '\n')
     {
-      inputArray[cnt] = input;
-      cnt++;
-
-      if (cnt >= arrSize)
+      if(!initialCommand)
       {
-        cnt = arrSize - 1;
+        initialCommand = writeCommand(input);
       }
-      return;
+      else
+      {
+        argsIterator = argsIterator + writeArgument(input);
+      }
+      return;    
     }
-
-    inputArray[cnt] = '\0';
-    cnt = 0;
+    
+    
     incomingData = true;
+    printBufferArray();
 
   }
 }
 
 
+void reset()
+{
+  currentCommandBuffer[0] = '\0';
+
+  for (byte i = 0; i < MAX_ARGS; i++)
+  {
+    currentArgs[i][0] = '\0';
+  }
+
+  argsIterator = 0;
+  initialCommand = false;
+}
+
+bool writeCommand(char input)
+{
+  if (input == ' ' || input == '\n')
+  {
+    return true;
+  }
+
+  currentCommandBuffer = chrcat(currentCommandBuffer, input);
+  return false; 
+}
+
+bool writeArgument(char input)
+{
+ if(input == ' ' || input == '\n')
+ {
+   return true;
+ } 
+
+ currentArgs[argsIterator] = chrcat(currentArgs[argsIterator], input);
+ return false;
+}
+
+char* chrcat (char* appendToChar, char whatTo)
+{
+  byte len = strlen(appendToChar);
+
+  if (len == (arrSize -1))
+  {
+    return appendToChar;
+  }
+
+ appendToChar[len] = whatTo;
+ appendToChar[len + 1] = 0;
+ return appendToChar;    
+}
+  
 void assignCommand()
 {
    if(incomingData)
@@ -66,13 +125,8 @@ void assignCommand()
             {
                 void (*funPtr)() = availableCommands[i].funPtr;
                 funPtr();
-                commandRecognized = true;
-                if (inputArray[i] == ' ')
-                {
-                   //seperate inputbuffer from parameter and argument and call serial.available
-                }
-                
-
+                commandRecognized = true;         
+                break;
             }
         }
 
@@ -80,15 +134,16 @@ void assignCommand()
       {
           incomingData = false;
           commandRecognized = false;
+          reset();
           return;
       }
-      
       Serial.println((String)"Input '" + inputArray + "'  not recognized! Available commands are: \n");
-      printStub();
+      //printStub();
+      printInfo();
       incomingData  = false;
+      reset();
     }
 }
-
 
 
 void printStub()
@@ -102,7 +157,7 @@ void printStub()
    
 }
 
-
+/*
 void printBuffer()
 {
   if (incomingData == true)
@@ -112,6 +167,25 @@ void printBuffer()
     incomingData = false;
   }
 }
+*/
+
+void printBufferArray()
+{
+  if(incomingData)
+  {
+    Serial.print("Given command is: ");
+    Serial.println(currentCommandBuffer);
+
+    Serial.print("Given arguments: ");
+    for (int i = 0; i < sizeof(currentArgs) + 1; i++)
+    {
+      Serial.print(" ");
+      Serial.print(currentArgs[i]);
+    }
+    Serial.println();
+   } 
+}
+
 
 int storeFunc(file *files, char *filename, int size, int data)
 {
@@ -177,4 +251,14 @@ int resumeFunc(int pID)
 int killFunc(int pID)
 {
     Serial.println("kill function");
+}
+
+
+void printInfo()
+{
+  for (int i = 0; i < commandIndex; i++)
+  {
+    Serial.println(availableCommands[i].commandName);
+  }
+  
 }

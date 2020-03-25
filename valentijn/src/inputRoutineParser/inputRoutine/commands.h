@@ -3,12 +3,22 @@
 
 #include "files.h"
 
+#define MAX_ARGS 3
 const int arrSize = 12;
 static int cnt = 0;
 
 const int stubArgSize = 10;
 const int stubParamSize = 35;
 const int stupDescSize = 65;
+
+
+char** currentArgs = new char*[MAX_ARGS];
+char* currentCommandBuffer = new char[arrSize];
+
+
+char inputCmd[arrSize];
+char inputArgs[30];
+
 
 void printBuffer();
 int storeFunc(file *files, char *fileName, int size, int data);
@@ -23,13 +33,17 @@ int suspendFunc(int pID);
 int resumeFunc(int pID);
 int killFunc(int pID);
 
+int argsIterator = 0;
 
 
 typedef struct inputCommands
 {
     char commandName[arrSize];
     void *funPtr; //functionpointer
-    // int commandID;
+    int commandID;
+    char fileName[arrSize];
+    int size;
+    int processID;
 }commands;
 
 typedef struct commandStub
@@ -38,7 +52,6 @@ typedef struct commandStub
     char stubParams[stubParamSize];
     char stubDescription[stupDescSize];
     int stubID;
-
 }stub;
 
 
