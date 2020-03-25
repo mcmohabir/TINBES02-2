@@ -13,6 +13,7 @@ class terminal
     void execTerminal();
 
   private:
+
     char** curArgs = new char*[MAX_COMMAND_ARGS];
     char* curCommandBuf = new char[arrSize];
 
@@ -22,48 +23,41 @@ class terminal
 
     int curArgIter = 0;
     int scanBuffer();
-    void assignCommand(char** arguments);
+    void assignCommand(char** args);
 
     bool writeCommand(char inputChar);
     bool writeArg(char inputChar);
     char* chrcat(char* appendTo, char what);
 
-    void store(char** arguments);
-    void retreive(char** arguments);
-    void erase(char** arguments);
-    void files(char** arguments);
-    void freespace(char** arguments);
-    void run (char** arguments);
-    void list(char** arguments);
-    void suspend(char** arguments);
-    void resume(char** arguments);
-    void kill(char** arguments);
+    void store(char** args);
+    void retreive(char** args);
+    void erase(char** args);
+    void files(char** args);
+    void freespace(char** args);
+    void run (char** args);
+    void list(char** args);
+    void suspend(char** args);
+    void resume(char** args);
+    void kill(char** args);
 
     void printBufferArray();
     void printInfo();
     void reset();
 
+    typedef void (terminal::*commandFunction)(char** args);
     typedef struct {
       char name[arrSize];
-      void *func;
+      terminal::commandFunction func;
       int commandID;
       char fileName[arrSize];
       int size;
       int processID;
     } commandType;
 
-    static commandType commandArray[] = {
-      {"store", &store},
-      {"retreive", &retreive},
-      {"erase", &erase},
-      {"files", &files},
-      {"freespace", &freespace},
-      {"run", &run},
-      {"list", &list},
-      {"suspend", &suspend},
-      {"resume", &resume},
-      {"kill", &kill}
-    };
+    static commandType commandArray[];
+    //static int commandArraySize = sizeof(commandArray) / sizeof(commandType);
+
+
 
 };
 #endif

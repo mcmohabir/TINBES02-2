@@ -10,19 +10,20 @@ class fat
 {
   public:
     EERef noOfFiles = EEPROM[160]; //store in position 160 in EEPROM
-    void writeFATEntry();
-    void readFATEntry();
+    
     int fileInFAT();
-
     bool existsInFAT(char* filename);
 
   private:
-
-    struct file {
-      char name[arrSize];
+    
+    typedef struct {
+      char name[12];
       int beginPos;
       int length;
-    };
+    } file;
+
+    file readFATEntry(byte pos);
+    void writeFATEntry(byte pos, file f);
 };
 
 

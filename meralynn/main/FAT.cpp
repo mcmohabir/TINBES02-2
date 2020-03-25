@@ -20,7 +20,7 @@ void fat::writeFATEntry(byte pos, file f)
 }
 
 
-file fat::readFATEntry(byte pos)
+fat::file fat::readFATEntry(byte pos)
 {
   file f;
   EEPROM.get(pos, f);

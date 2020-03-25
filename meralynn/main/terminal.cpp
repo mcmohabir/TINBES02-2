@@ -1,9 +1,18 @@
 #include "terminal.h"
 #include "FAT.h"
 
-
-static int commandArraySize = sizeof(commandArray) / sizeof(commandType);
-
+terminal::commandType terminal::commandArray[] = {
+  {"store", &terminal::store},
+  {"retreive", &terminal::retreive},
+  {"erase", &terminal::erase},
+  {"files", &terminal::files},
+  {"freespace", &terminal::freespace},
+  {"run", &terminal::run},
+  {"list", &terminal::list},
+  {"suspend", &terminal::suspend},
+  {"resume", &terminal::resume},
+  {"kill", &terminal::kill}
+};
 
 terminal::terminal()
 {
@@ -48,17 +57,17 @@ int terminal::scanBuffer()
 /*
    Check if input matches an existing command and assign appropriate function
 */
-void terminal::assignCommand(char** arguments)
+void terminal::assignCommand(char** args)
 {
   if (!incomingData)
     return;
 
-  for (int i = 0; i < commandArraySize; i++)
+  for (int i = 0; i < (sizeof(commandArray) / sizeof(commandType)); i++)
   {
     if (strcmp(curCommandBuf, commandArray[i].name) == 0)
     {
-      void (*func)(char**) = commandArray[i].func;
-      func(arguments);
+      commandFunction func = commandArray[i].func;
+      (this->*func)(args);
       knownCmd = true;
       break;
     }
@@ -141,7 +150,7 @@ void terminal::printBufferArray()
 
 void terminal::printInfo()
 {
-  for (int i = 0; i < commandArraySize; i++)
+  for (int i = 0; i < (sizeof(commandArray) / sizeof(commandType)); i++)
   {
     Serial.println(commandArray[i].name);
   }
@@ -150,68 +159,69 @@ void terminal::printInfo()
 }
 
 
-void terminal::store (char** arguments)
+void terminal::store (char** args)
 {
   Serial.println("in store function");
 
   //check if vrije entry in FAT
   //functie die checkt of een bestand met naam aanwezig is in FAT
-  if (fat::existsInFAT()) {
-
+  /*if (fat::existsInFAT(args[0][0])) 
+  {
+   return;
   }
-
+*/
 }
 
 
-void terminal::retreive(char** arguments)
+void terminal::retreive(char** args)
 {
   Serial.println("in retreive function");
 }
 
 
-void terminal::erase(char** arguments)
+void terminal::erase(char** args)
 {
   Serial.println("in erase function");
 }
 
 
-void terminal::files(char** arguments)
+void terminal::files(char** args)
 {
   Serial.println("in files function");
 }
 
 
-void terminal::freespace(char** arguments)
+void terminal::freespace(char** args)
 {
   Serial.println("in freespace function");
 }
 
 
-void terminal::run(char** arguments)
+void terminal::run(char** args)
 {
   Serial.println("in run function");
 }
 
 
-void terminal::list(char** arguments)
+void terminal::list(char** args)
 {
   Serial.println("in list function");
 }
 
 
-void terminal::suspend(char** arguments)
+void terminal::suspend(char** args)
 {
   Serial.println("in suspend function");
 }
 
 
-void terminal::resume(char** arguments)
+void terminal::resume(char** args)
 {
   Serial.println("in resume function");
 }
 
 
-void terminal::kill(char** arguments)
+void terminal::kill(char** args)
 {
   Serial.println("in kill function");
 }
