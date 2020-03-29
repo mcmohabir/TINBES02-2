@@ -1,5 +1,5 @@
 #include "terminal.h"
-#include "FAT.h"
+
 
 terminal::commandType terminal::commandArray[] = {
   {"store", &terminal::store},
@@ -158,36 +158,76 @@ void terminal::printInfo()
   Serial.print("\n");
 }
 
+void terminal::createFAT(char** args)
+{
+    fat::initFAT(); 
+}
+
+bool fat::listFiles()
+{
+  for (byte i = 0; i < FAT_SIZE; i++)
+    {
+        file eepromfile = readFATEntry(i);
+        if (file.size > 0) // Only print files that contain data
+        {
+            Serial.print("file: ");
+            Serial.print(i);                            // File index from FAT
+            Serial.print("\t- ");
+            Serial.print(eepromfile.name);                    // Filename
+            Serial.print("\t\t");
+            Serial.print(eepromfile.beginsPos);                // Start byte on disk
+            Serial.print("/");
+            Serial.print(eepromfile.beginPos + file.length);    // End byte on disk
+            Serial.print("\t(");
+            Serial.print(eepromfile.length);                    // Filesize
+            Serial.println(" bytes)");
+        }
+    }
+    return true;
+}
 
 void terminal::store (char** args)
 {
   Serial.println("in store function");
-
-  //check if vrije entry in FAT
-  //functie die checkt of een bestand met naam aanwezig is in FAT
-  /*if (fat::existsInFAT(args[0][0])) 
+  int size = strlen(args[1]) + 1;
+  if (fat::addFile(args[0], size, args[1]))
   {
-   return;
+    Serial.print("stored: ");
+    Serial.println(args[0]);
   }
-*/
+  else
+  {
+    Serial.println("failed store");
+  }
 }
 
 
 void terminal::retreive(char** args)
 {
   Serial.println("in retreive function");
+  char* data = fat::readFile(args[0]);
+  delete[] data;
 }
 
 
 void terminal::erase(char** args)
 {
   Serial.println("in erase function");
+  if(fat::deleteFile(args[0]))
+  {
+    Serial.print("deleted file: ");
+    Serial.println(args[0]);
+  }
+  else{
+    Serial.println("file nog found")
+  }
 }
 
 
 void terminal::files(char** args)
 {
   Serial.println("in files function");
+  fat::listFiles();
 }
 
 

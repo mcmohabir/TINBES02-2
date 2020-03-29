@@ -2,6 +2,7 @@
 #define TERMINAL_H
 
 #include "Arduino.h"
+#include "FAT.h"
 
 #define MAX_COMMAND_ARGS 3
 #define arrSize 12
@@ -29,6 +30,7 @@ class terminal
     bool writeArg(char inputChar);
     char* chrcat(char* appendTo, char what);
 
+    void createFAT(char** args);
     void store(char** args);
     void retreive(char** args);
     void erase(char** args);
