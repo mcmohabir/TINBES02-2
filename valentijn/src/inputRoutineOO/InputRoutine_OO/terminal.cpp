@@ -1,12 +1,26 @@
 #include "terminal.h"
 
+terminal::commandType terminal::availableCommands[] = {
+  {"store", &terminal::store},
+  {"retreive", &terminal::retreive},
+  {"erase", &terminal::erase},
+  {"files", &terminal::files},
+  {"freespace", &terminal::freespace},
+  {"run", &terminal::run},
+  {"list", &terminal::list},
+  {"suspend", &terminal::suspend},
+  {"resume", &terminal::resume},
+  {"kill", &terminal::kill}
+};
 
-static int commandIndex = sizeof(availableCommands) / sizeof(command);
+
+
 
 terminal::terminal()
 {
     terminal::reset();
 }
+
 
 void terminal::initializeTerminal()
 {
@@ -29,17 +43,16 @@ int terminal::scanBuffer()
 
         if (input != '\n')
         {
-        if(!initialCommand)
-        {
-            initialCommand = writeCommand(input);
-        }
+          if(!initialCommand)
+          {
+              initialCommand = writeCommand(input);
+          }
         else
         {
-         argsIterator = argsIterator + writeArgument(input);
+          currentArgIter = currentArgIter + writeArgument(input);
         }
       return 0;    
     }
-    
     
     incomingData = true;
     printBufferArray();
@@ -54,13 +67,13 @@ void terminal::assignCommand(char** arguments)
          return;
      }
     
-     for(int i = 0; i < commandIndex; i++)
+     for(int i = 0; i < commandCounter; i++)
       {
-       if(strcmp(inputArray, availableCommands[i].commandName) == 0)
+       if(strcmp(currentCommandBuffer, availableCommands[i].commandName) == 0)
         {
-            void (*funPtr)(arguments **) = availableCommands[i].funPtr;
-            funPtr(arguments);
-            commandRecognized = true;         
+           commandFun funPtr = availableCommands[i].funPtr;
+          (this->*funPtr)(arguments);
+           commandRecognized = true;         
             break;
           }
       }
@@ -81,9 +94,9 @@ void terminal::assignCommand(char** arguments)
     
 }
 
-bool terimal::writeCommand(char inputChar)
+bool terminal::writeCommand(char inputChar)
 {
-     if(inputChar == ' '|| inputChar == '\n')
+     if(inputChar == ' ' || inputChar == '\n')
     {
         return true;
     }
@@ -94,7 +107,7 @@ bool terimal::writeCommand(char inputChar)
 
 bool terminal::writeArgument(char inputChar)
 {
-    if(inputChar == ' '|| inputChar == '\n')
+    if(inputChar == ' ' || inputChar == '\n')
     {
         return true;
     }
@@ -105,15 +118,15 @@ bool terminal::writeArgument(char inputChar)
 
 char* terminal::chrcat(char* appendToChar, char whatTo)
 {
-    byte len = strlen(appendToChar);
+    byte length = strlen(appendToChar);
 
-    if (len == (arrSize -1))
+    if (length == (arrSize -1))
     {
         return appendToChar;
     }
 
-    appendToChar[len] = whatTo;
-    appendToChar[len + 1] = 0;
+    appendToChar[length] = whatTo;
+    appendToChar[length + 1] = 0;
     
     return appendToChar; 
 }
@@ -125,10 +138,10 @@ void terminal::reset()
 
     for (byte i = 0; i < MAX_ARGS; i++)
     {
-        currentArgument[i][0] = '\0'; 
+        currentArguments[i][0] = '\0'; 
     }
     
-    currentArgIterator = 0;
+    currentArgIter = 0;
     initialCommand = false;
     
 }
@@ -158,7 +171,7 @@ void terminal::printBufferArray()
 
 void terminal::printInfo()
 {
-    for (int i = 0; i < commandIndex; i++)
+    for (int i = 0; i < commandCounter; i++)
     {
         Serial.println(availableCommands[i].name);
         

@@ -6,6 +6,7 @@
 #define MAX_ARGS 3
 #define arrSize 12
 
+
 class terminal
 {
 public:
@@ -15,6 +16,7 @@ public:
 private:
     char **currentArguments = new char *[MAX_ARGS];
     char *currentCommandBuffer = new char[arrSize];
+    static int commandCounter = sizeof(availableCommands) / sizeof(command);
 
     bool incomingData = false;
     bool initialCommand = false;
@@ -39,19 +41,20 @@ private:
     void printBufferArray();
     void printInfo();
     void reset();
-
+    typedef void(terminal::*commandFun)(char** arguments)
 
     typedef struct commandStruct
     {
         char name[arrSize];
-        void *funPtr;
+        terminal::commandFun funPtr;
         int cID;
         char fileName[arrSize];
         int size;
         int pID
     } command;
     
-
+    static command availableCommands[];
+/*
     static command commandIndex[] =
     {
         {"store", &store},
@@ -67,3 +70,6 @@ private:
     };
 };
 
+*/
+
+#endif
