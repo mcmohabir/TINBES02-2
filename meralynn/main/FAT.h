@@ -14,9 +14,13 @@ class fat
     int fileInFAT();
     bool existsInFAT(char* filename);
     bool initFAT();
-
-  private:
+    char* readFile(char* name);
     bool addFile(char* name, int size, char* data);
+    bool deleteFile(char* name);
+    
+    
+  private:
+
     int getStartPos(int size);
     int firstEmptyFile();
     bool writeData(int startPos, int size, char* data);

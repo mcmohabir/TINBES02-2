@@ -14,23 +14,30 @@ class terminal
     void execTerminal();
 
   private:
+    char** curArgs = new char*[MAX_COMMAND_ARGS]; // Arguments buffer
+    char* curCommandBuf = new char[arrSize];      // Command buffer
 
-    char** curArgs = new char*[MAX_COMMAND_ARGS];
-    char* curCommandBuf = new char[arrSize];
-
+    // Variables
     bool incomingData = false;
     bool firstCommand = false;
     bool knownCmd = false;
+    int curArgIter = 0;         //Arguments counter
 
-    int curArgIter = 0;
+    // Command line functions
     int scanBuffer();
     void assignCommand(char** args);
 
+    // Writing helper functions
     bool writeCommand(char inputChar);
     bool writeArg(char inputChar);
     char* chrcat(char* appendTo, char what);
 
     void createFAT(char** args);
+    void printBufferArray();
+    void printInfo();
+    void reset();
+
+    // Command functions
     void store(char** args);
     void retreive(char** args);
     void erase(char** args);
@@ -42,9 +49,6 @@ class terminal
     void resume(char** args);
     void kill(char** args);
 
-    void printBufferArray();
-    void printInfo();
-    void reset();
 
     typedef void (terminal::*commandFunction)(char** args);
     typedef struct {
@@ -55,11 +59,7 @@ class terminal
       int size;
       int processID;
     } commandType;
-
     static commandType commandArray[];
-    //static int commandArraySize = sizeof(commandArray) / sizeof(commandType);
-
-
 
 };
 #endif

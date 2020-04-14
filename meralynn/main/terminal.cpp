@@ -1,6 +1,6 @@
 #include "terminal.h"
 
-
+// Struct array
 terminal::commandType terminal::commandArray[] = {
   {"store", &terminal::store},
   {"retreive", &terminal::retreive},
@@ -13,6 +13,9 @@ terminal::commandType terminal::commandArray[] = {
   {"resume", &terminal::resume},
   {"kill", &terminal::kill}
 };
+
+//==============================================================================
+// Terminal Initialization
 
 terminal::terminal()
 {
@@ -28,6 +31,25 @@ void terminal::execTerminal()
   assignCommand(curArgs);
 }
 
+
+//==============================================================================
+// Reset
+void terminal::reset()
+{
+  curCommandBuf[0] = '\0';
+  for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
+  {
+    curArgs[i][0] = '\0';
+  }
+  curArgIter = 0;
+  firstCommand = false;
+}
+
+
+//==============================================================================
+// Command line
+
+// Scan commandline and put input in correct buffers
 int terminal::scanBuffer()
 {
   char input;
@@ -54,9 +76,7 @@ int terminal::scanBuffer()
 
 }
 
-/*
-   Check if input matches an existing command and assign appropriate function
-*/
+// Check if input matches existing commmand and go to corresponding function
 void terminal::assignCommand(char** args)
 {
   if (!incomingData)
@@ -88,6 +108,10 @@ void terminal::assignCommand(char** args)
 
 }
 
+
+//==============================================================================
+// Writing helper functions
+
 bool terminal::writeCommand(char inputChar)
 {
   if (inputChar == ' ' || inputChar == '\n')
@@ -108,6 +132,7 @@ bool terminal::writeArg(char inputChar)
 }
 
 
+// Add character to buffer
 char* terminal::chrcat(char* appendTo, char what)
 {
   byte len = strlen(appendTo);
@@ -118,17 +143,8 @@ char* terminal::chrcat(char* appendTo, char what)
   return appendTo;
 }
 
-
-void terminal::reset()
-{
-  curCommandBuf[0] = '\0';
-  for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
-  {
-    curArgs[i][0] = '\0';
-  }
-  curArgIter = 0;
-  firstCommand = false;
-}
+//==============================================================================
+//print functions
 
 void terminal::printBufferArray()
 {
@@ -158,34 +174,17 @@ void terminal::printInfo()
   Serial.print("\n");
 }
 
+//==============================================================================
+// FAT Functions 
+
 void terminal::createFAT(char** args)
 {
-    fat::initFAT(); 
+  fat::initFAT();
 }
 
-bool fat::listFiles()
-{
-  for (byte i = 0; i < FAT_SIZE; i++)
-    {
-        file eepromfile = readFATEntry(i);
-        if (file.size > 0) // Only print files that contain data
-        {
-            Serial.print("file: ");
-            Serial.print(i);                            // File index from FAT
-            Serial.print("\t- ");
-            Serial.print(eepromfile.name);                    // Filename
-            Serial.print("\t\t");
-            Serial.print(eepromfile.beginsPos);                // Start byte on disk
-            Serial.print("/");
-            Serial.print(eepromfile.beginPos + file.length);    // End byte on disk
-            Serial.print("\t(");
-            Serial.print(eepromfile.length);                    // Filesize
-            Serial.println(" bytes)");
-        }
-    }
-    return true;
-}
 
+//==============================================================================
+// Command functions
 void terminal::store (char** args)
 {
   Serial.println("in store function");
@@ -213,12 +212,12 @@ void terminal::retreive(char** args)
 void terminal::erase(char** args)
 {
   Serial.println("in erase function");
-  if(fat::deleteFile(args[0]))
+  if (fat::deleteFile(args[0]))
   {
     Serial.print("deleted file: ");
     Serial.println(args[0]);
   }
-  else{
+  else {
     Serial.println("file nog found")
   }
 }

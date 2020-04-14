@@ -1,44 +1,50 @@
 #include "FAT.h"
 
+
+//==============================================================================
+// Initialize File Allocation Table
+
 bool fat::initFAT()
 {
-    Serial.println("initFAT: initializing...");
+  Serial.println("initFAT: initializing...");
 
-    noOfFiles = 0;
-    Serial.print("initFAT: noOfFiles: ");
-    Serial.println(noOfFiles);
+  noOfFiles = 0;
+  Serial.print("initFAT: noOfFiles: ");
+  Serial.println(noOfFiles);
 
-    Serial.print("initFAT: last FAT byte: ");
-    Serial.println(sizeof(noOfFiles) + (sizeof(file) * FAT_SIZE));
+  Serial.print("initFAT: last FAT byte: ");
+  Serial.println(sizeof(noOfFiles) + (sizeof(file) * FAT_SIZE));
 
-    for (byte i = 0; i < FAT_SIZE; i++)
-    {
-        Serial.print("initFAT: write empty file: ");
-        Serial.println(i);
-        file emptyFile = (file){"",0,0};
-        writeFATEntry(i, emptyFile);
-    }
+  for (byte i = 0; i < FAT_SIZE; i++)
+  {
+    Serial.print("initFAT: write empty file: ");
+    Serial.println(i);
+    file emptyFile = (file) {
+      "", 0, 0
+    };
+    writeFATEntry(i, emptyFile);
+  }
 
-    Serial.println("initFAT: completed");
-    return true;
+  Serial.println("initFAT: completed");
+  return true;
 }
 
+//==============================================================================
 
-bool fat::existsInFAT(char* filename)
+
+// Check if filename already exists in FAT
+int fat::existsInFAT(char* filename)
 {
   for (int i = 0; i < FAT_SIZE; i++)
   {
-    char* entryName = readFATEntry(i).name;
-    if (strcmp(filename, entryName) == 0)
-    {
-      return true;
-    }
+   file eempromfile = readFATEntry(i);
+    if (strcmp(eepromfile.name, name) == 0) return i;
   }
-  return false;
+  return -1;
 }
 
 
-
+// Find first empty file?
 int fat::firstEmptyFile()
 {
   for (byte i = 0; i < FAT_SIZE; i++)
@@ -49,29 +55,14 @@ int fat::firstEmptyFile()
   return -1;
 }
 
-
-void fat::writeFATEntry(byte pos, file f)
-{
-  EEPROM.put(pos, f);
-}
-
+//==============================================================================
+// Read functions
 
 fat::file fat::readFATEntry(byte pos)
 {
   file f;
   EEPROM.get(pos, f);
   return f;
-}
-
-bool fat::writeData(int startPos, int size, char* data)
-{
-  int nextAdress = 0;
-  for (int i = 0; i < size; i++) // Store all bytes to disk
-  {
-    EEPROM.write(startPos + nextAdress, data[i]);
-    nextAdress += sizeof(data[i]);
-  }
-  return true;
 }
 
 
@@ -87,7 +78,34 @@ char* fat::readData(int pos, int size)
   return data;
 }
 
+//==============================================================================
+// Write functions
 
+
+// NOT COMPLETE/WORKING PROPERLY
+void fat::writeFATEntry(byte pos, file f)
+{
+  EEPROM.put(pos, f);
+}
+
+
+bool fat::writeData(int startPos, int size, char* data)
+{
+  int nextAdress = 0;
+  for (int i = 0; i < size; i++) // Store all bytes to disk
+  {
+    EEPROM.write(startPos + nextAdress, data[i]);
+    nextAdress += sizeof(data[i]);
+  }
+  return true;
+}
+
+
+//==============================================================================
+//Get starting positions helper functions
+
+
+//Get starting position of next file in fat?? -- dont understand
 int fat::getNextFileStartPos(int i)
 {
   for (byte n = i + 1; n < FAT_SIZE; n++)
@@ -99,22 +117,28 @@ int fat::getNextFileStartPos(int i)
 
 }
 
-
+// Get first availablle byte to store data
 int fat::getStartPos(int size)
 {
+  // noOfFiles + FAT size + padding byte
   int firstFreePos = sizeof(noOfFiles) + (sizeof(file) * FAT_SIZE) + 1;
+  
   if (noOfFiles == 0)
-    return firstFreePos;  
+    return firstFreePos;
+    
   else {
     bool firstFile = true;
     for (byte i = 0; i < FAT_SIZE; i++)
     {
-      file  eepromfile = readFATEntry(i);
+      file eepromfile = readFATEntry(i);
+      
       if (eepromfile.length > 0)
       {
+        // Check if file fits between FAT and first file
         if (firstFile == true && size < eepromfile.beginPos - firstFreePos)
           return firstFreePos;
 
+        // Check if file fits between current file and next file or end
         if (size < getNextFileStartPos(i) - (eepromfile.beginPos + eepromfile.length))
           return (eepromfile.beginPos + eepromfile.length) + 1;
 
@@ -127,7 +151,7 @@ int fat::getStartPos(int size)
   return -1;
 }
 
-
+//==============================================================================
 bool fat::addFile(char* name, int size, char* data)
 {
   if (!existsInFAT(name))
@@ -140,8 +164,11 @@ bool fat::addFile(char* name, int size, char* data)
     return false;
 
   file storeFile = (file) {
-    "", startPos, size
+    "", 
+    startPos, 
+    size
   };
+  
   strcpy(storeFile.name, name);
   writeFATEntry(firstEmptyFile(), storeFile);
   writeData(storeFile.beginPos, size, data);
@@ -152,7 +179,7 @@ bool fat::addFile(char* name, int size, char* data)
 char* fat::readFile(char* name)
 {
   int entry = nameToFATEntry(name);
-  if(entry >= 0)
+  if (entry >= 0)
   {
     file eepromfile = readFATEntry(entry);
     return readData(eepromfile.beginPos, eepromfile.size);
@@ -160,6 +187,8 @@ char* fat::readFile(char* name)
   else
     return "no file found";
 }
+
+//==============================================================================
 
 bool fat::deleteFile(char* name)
 {
@@ -176,4 +205,29 @@ bool fat::deleteFile(char* name)
   }
   else
     return false;
+}
+
+
+//From Lex van Teeffelen
+bool fat::listFiles()
+{
+  for (byte i = 0; i < FAT_SIZE; i++)
+  {
+    file eepromfile = readFATEntry(i);
+    if (file.size > 0) // Only print files that contain data
+    {
+      Serial.print("file: ");
+      Serial.print(i);                                  // File index from FAT
+      Serial.print("\t- ");
+      Serial.print(eepromfile.name);                    // Filename
+      Serial.print("\t\t");
+      Serial.print(eepromfile.beginsPos);               // Start byte on disk
+      Serial.print("/");
+      Serial.print(eepromfile.beginPos + file.length);  // End byte on disk
+      Serial.print("\t(");
+      Serial.print(eepromfile.length);                  // Filesize
+      Serial.println(" bytes)");
+    }
+  }
+  return true;
 }
