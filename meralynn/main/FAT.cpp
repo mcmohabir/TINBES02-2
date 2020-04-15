@@ -31,33 +31,65 @@ bool fat::initFAT()
 }
 
 //==============================================================================
+// Files
 
-
-// Check if filename already exists in FAT
-int fat::existsInFAT(char* filename)
+bool fat::addFile(char* name, int size, char* data)
 {
-  for (int i = 0; i < FAT_SIZE; i++)
+  if (!existsInFAT(name))
   {
-    eepromfile file = readFATEntry(i);
-    if (strcmp(file.name, filename) == 0) return i;
+    return false;
   }
-  return -1;
+
+  int startPos = getStartPos(size);
+  if (startPos == -1)
+    return false;
+
+  eepromfile storeFile = (eepromfile) {
+    "",
+    startPos,
+    size
+  };
+
+  strcpy(storeFile.name, name);
+  writeFATEntry(firstEmptyFile(), storeFile);
+  writeData(storeFile.beginPos, size, data);
+  noOfFiles += 1;
+  return true;
 }
 
 
-// Find first empty file?
-int fat::firstEmptyFile()
+char* fat::readFile(char* name)
 {
-  for (byte i = 0; i < FAT_SIZE; i++)
+  int entry = existsInFAT(name);
+  if (entry >= 0)
   {
-    eepromfile file = readFATEntry(i);
-    if (file.length == 0) return i;
+    eepromfile file = readFATEntry(entry);
+    return readData(file.beginPos, file.length);
   }
-  return -1;
+  else
+    return "no file found";
+}
+
+
+bool fat::deleteFile(char* name)
+{
+  int entry = existsInFAT(name);
+  if (entry >= 0)
+  {
+    eepromfile file = readFATEntry(entry);
+    file.name[0] = '\0';
+    file.beginPos = 0;
+    file.length = 0;
+    writeFATEntry(entry, file);
+    noOfFiles -= 1;
+    return true;
+  }
+  else
+    return false;
 }
 
 //==============================================================================
-// Read functions
+// Read and write entry
 
 fat::eepromfile fat::readFATEntry(byte pos)
 {
@@ -67,6 +99,14 @@ fat::eepromfile fat::readFATEntry(byte pos)
 }
 
 
+bool fat::writeFATEntry(byte pos, eepromfile file)
+{
+  EEPROM.put(1 + pos * sizeof(eepromfile), file);
+  return true;
+}
+
+//==============================================================================
+// Read and write data
 char* fat::readData(int pos, int size)
 {
   char* data = new char[size]; // Variable to store data in
@@ -77,17 +117,6 @@ char* fat::readData(int pos, int size)
     nextAdress += sizeof(char);
   }
   return data;
-}
-
-//==============================================================================
-// Write functions
-
-
-// NOT COMPLETE/WORKING PROPERLY
-bool fat::writeFATEntry(byte pos, eepromfile file)
-{
-  EEPROM.put(1 + pos * sizeof(eepromfile), file);
-  return true;
 }
 
 
@@ -105,7 +134,6 @@ bool fat::writeData(int startPos, int size, char* data)
 
 //==============================================================================
 //Get starting positions helper functions
-
 
 //Get starting position of next file in fat?? -- dont understand
 int fat::getNextFileStartPos(int i)
@@ -153,64 +181,32 @@ int fat::getStartPos(int size)
   return -1;
 }
 
-//==============================================================================
-bool fat::addFile(char* name, int size, char* data)
-{
-  if (!existsInFAT(name))
-  {
-    return false;
-  }
-
-  int startPos = getStartPos(size);
-  if (startPos == -1)
-    return false;
-
-  eepromfile storeFile = (eepromfile) {
-    "",
-    startPos,
-    size
-  };
-
-  strcpy(storeFile.name, name);
-  writeFATEntry(firstEmptyFile(), storeFile);
-  writeData(storeFile.beginPos, size, data);
-  noOfFiles += 1;
-  return true;
-}
-
-char* fat::readFile(char* name)
-{
-  int entry = existsInFAT(name);
-  if (entry >= 0)
-  {
-    eepromfile file = readFATEntry(entry);
-    return readData(file.beginPos, file.length);
-  }
-  else
-    return "no file found";
-}
 
 //==============================================================================
+// Helper functions
 
-bool fat::deleteFile(char* name)
+int fat::existsInFAT(char* filename)
 {
-  int entry = existsInFAT(name);
-  if (entry >= 0)
+  for (int i = 0; i < FAT_SIZE; i++)
   {
-    eepromfile file = readFATEntry(entry);
-    file.name[0] = '\0';
-    file.beginPos = 0;
-    file.length = 0;
-    writeFATEntry(entry, file);
-    noOfFiles -= 1;
-    return true;
+    eepromfile file = readFATEntry(i);
+    if (strcmp(file.name, filename) == 0) return i;
   }
-  else
-    return false;
+  return -1;
+}
+
+int fat::firstEmptyFile()
+{
+  for (byte i = 0; i < FAT_SIZE; i++)
+  {
+    eepromfile file = readFATEntry(i);
+    if (file.length == 0) return i;
+  }
+  return -1;
 }
 
 
-//From Lex van Teeffelen
+
 bool fat::listFiles()
 {
   for (byte i = 0; i < FAT_SIZE; i++)

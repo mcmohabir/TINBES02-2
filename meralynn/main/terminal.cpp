@@ -20,17 +20,22 @@ terminal::commandType terminal::commandArray[] = {
 
 terminal::terminal()
 {
-  reset();
+    curCommandBuf[0] = '\0';
+    for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
+    {
+        curArgs[i] = new char[arrSize];
+        curArgs[i][0] = '\0';
+    }
 }
 
 void terminal::execTerminal()
 {
   int commandEntered = scanBuffer();
   if (commandEntered == 0) return false;
-  
+
   assignCommand(curArgs);
   reset();
-  
+
 }
 
 
@@ -40,9 +45,7 @@ void terminal::reset()
 {
   curCommandBuf[0] = '\0';
   for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
-  {
     curArgs[i][0] = '\0';
-  }
   curArgIter = 0;
   firstCommand = false;
 }

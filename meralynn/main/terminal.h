@@ -52,15 +52,13 @@ class terminal
 
 
     typedef void (terminal::*commandFunction)(char** args);
+    
     typedef struct {
       char name[arrSize];
       terminal::commandFunction func;
       byte amountArgs;
-//      int commandID;
-//      char fileName[arrSize];
-//      int size;
-//      int processID;
     } commandType;
+    
     static commandType commandArray[];
 
 };
