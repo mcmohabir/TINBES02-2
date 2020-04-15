@@ -2,16 +2,17 @@
 
 // Struct array
 terminal::commandType terminal::commandArray[] = {
-  {"store", &terminal::store},
-  {"retreive", &terminal::retreive},
-  {"erase", &terminal::erase},
-  {"files", &terminal::files},
-  {"freespace", &terminal::freespace},
-  {"run", &terminal::run},
-  {"list", &terminal::list},
-  {"suspend", &terminal::suspend},
-  {"resume", &terminal::resume},
-  {"kill", &terminal::kill}
+  {"initFAT",     &terminal::createFAT,   0},
+  {"store",       &terminal::store,       2},
+  {"retreive",    &terminal::retreive,    1},
+  {"erase",       &terminal::erase,       1},
+  {"files",       &terminal::files,       0},
+  {"freespace",   &terminal::freespace,   0},
+  {"run",         &terminal::run,         1},
+  {"list",        &terminal::list,        0},
+  {"suspend",     &terminal::suspend,     1},
+  {"resume",      &terminal::resume,      1},
+  {"kill",        &terminal::kill,        1}
 };
 
 //==============================================================================
@@ -19,16 +20,17 @@ terminal::commandType terminal::commandArray[] = {
 
 terminal::terminal()
 {
-  terminal::reset();
+  reset();
 }
 
 void terminal::execTerminal()
 {
   int commandEntered = scanBuffer();
-  if (commandEntered == 0)
-    return;
-
+  if (commandEntered == 0) return false;
+  
   assignCommand(curArgs);
+  reset();
+  
 }
 
 
@@ -144,7 +146,7 @@ char* terminal::chrcat(char* appendTo, char what)
 }
 
 //==============================================================================
-//print functions
+// Print functions
 
 void terminal::printBufferArray()
 {
@@ -175,7 +177,7 @@ void terminal::printInfo()
 }
 
 //==============================================================================
-// FAT Functions 
+// FAT Functions
 
 void terminal::createFAT(char** args)
 {
@@ -218,7 +220,7 @@ void terminal::erase(char** args)
     Serial.println(args[0]);
   }
   else {
-    Serial.println("file nog found")
+    Serial.println("file nog found");
   }
 }
 

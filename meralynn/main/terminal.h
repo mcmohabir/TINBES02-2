@@ -1,6 +1,7 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
+#pragma once 
 #include "Arduino.h"
 #include "FAT.h"
 
@@ -54,10 +55,11 @@ class terminal
     typedef struct {
       char name[arrSize];
       terminal::commandFunction func;
-      int commandID;
-      char fileName[arrSize];
-      int size;
-      int processID;
+      byte amountArgs;
+//      int commandID;
+//      char fileName[arrSize];
+//      int size;
+//      int processID;
     } commandType;
     static commandType commandArray[];
 

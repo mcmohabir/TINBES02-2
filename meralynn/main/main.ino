@@ -1,6 +1,7 @@
 #include "proc.h"
 
 proc procm;
+
 void setup()
 {
   Serial.begin(9600);

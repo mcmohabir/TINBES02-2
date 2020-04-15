@@ -1,6 +1,7 @@
 #ifndef FAT_H
 #define FAT_H
 
+#pragma once
 #include <EEPROM.h>
 #include "Arduino.h"
 
@@ -9,37 +10,33 @@
 class fat
 {
   public:
-    EERef noOfFiles = EEPROM[160]; //store in position 160 in EEPROM
+    static EERef noOfFiles;
 
-    int fileInFAT();
-    bool existsInFAT(char* filename);
-    bool initFAT();
-    char* readFile(char* name);
-    bool addFile(char* name, int size, char* data);
-    bool deleteFile(char* name);
-    
-    
+    static bool initFAT();
+    static bool addFile(char* name, int size, char* data);
+    static bool deleteFile(char* name);
+    static char* readFile(char* name);
+    static bool listFiles();
+
   private:
-
-    int getStartPos(int size);
-    int firstEmptyFile();
-    bool writeData(int startPos, int size, char* data);
-    char* readData(int pos, int size);
-    int getNextFileStartPos(int i);
 
     typedef struct {
       char name[12];
       int beginPos;
       int length;
-    } file;
+    } eepromfile;
+    
+    static eepromfile readFATEntry(byte pos);
+    static bool writeFATEntry(byte pos, eepromfile f);
+    static int getStartPos(int size);
+    static int firstEmptyFile();
+    static bool writeData(int startPos, int size, char* data);
+    static char* readData(int pos, int size);
+    static int getNextFileStartPos(int i);
+    static int existsInFAT(char* filename);
 
-    file readFATEntry(byte pos);
-    void writeFATEntry(byte pos, file f);
+
+
 };
-
-
-
-
-
 
 #endif
