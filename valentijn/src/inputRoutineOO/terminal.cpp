@@ -1,6 +1,7 @@
 #include "terminal.h"
 
-terminal::commandType terminal::availableCommands[] = {
+terminal::command terminal::availableCommands[] =
+{
   {"store", &terminal::store},
   {"retreive", &terminal::retreive},
   {"erase", &terminal::erase},
@@ -12,7 +13,6 @@ terminal::commandType terminal::availableCommands[] = {
   {"resume", &terminal::resume},
   {"kill", &terminal::kill}
 };
-
 
 
 
@@ -29,7 +29,7 @@ void terminal::initializeTerminal()
     {
         return;
     }
-    
+
     assignCommand(currentArguments);
 }
 
@@ -51,9 +51,9 @@ int terminal::scanBuffer()
         {
           currentArgIter = currentArgIter + writeArgument(input);
         }
-      return 0;    
+      return 0;
     }
-    
+
     incomingData = true;
     printBufferArray();
     return 1;
@@ -62,18 +62,20 @@ int terminal::scanBuffer()
 
 void terminal::assignCommand(char** arguments)
 {
-     if(!incomingData)
+    static int commandCounter = sizeof(availableCommands) / sizeof(command);
+
+    if(!incomingData)
      {
          return;
      }
-    
+
      for(int i = 0; i < commandCounter; i++)
       {
-       if(strcmp(currentCommandBuffer, availableCommands[i].commandName) == 0)
+       if(strcmp(currentCommandBuffer, availableCommands[i].name) == 0)
         {
            commandFun funPtr = availableCommands[i].funPtr;
           (this->*funPtr)(arguments);
-           commandRecognized = true;         
+           commandRecognized = true;
             break;
           }
       }
@@ -85,13 +87,13 @@ void terminal::assignCommand(char** arguments)
        reset();
        return;
     }
-    
-    Serial.println((String)"Input '" + inputArray + "'  not recognized! Available commands are: \n");
+
+    Serial.println((String)"Input '" + currentCommandBuffer + "'  not recognized! Available commands are: \n");
     //printStub();
     printInfo();
     incomingData  = false;
     reset();
-    
+
 }
 
 bool terminal::writeCommand(char inputChar)
@@ -113,7 +115,7 @@ bool terminal::writeArgument(char inputChar)
     }
 
     currentArguments[currentArgIter] = chrcat(currentArguments[currentArgIter], inputChar);
-    return false
+    return false;
 }
 
 char* terminal::chrcat(char* appendToChar, char whatTo)
@@ -127,8 +129,8 @@ char* terminal::chrcat(char* appendToChar, char whatTo)
 
     appendToChar[length] = whatTo;
     appendToChar[length + 1] = 0;
-    
-    return appendToChar; 
+
+    return appendToChar;
 }
 
 
@@ -138,12 +140,12 @@ void terminal::reset()
 
     for (byte i = 0; i < MAX_ARGS; i++)
     {
-        currentArguments[i][0] = '\0'; 
+        currentArguments[i][0] = '\0';
     }
-    
+
     currentArgIter = 0;
     initialCommand = false;
-    
+
 }
 
 
@@ -164,37 +166,31 @@ void terminal::printBufferArray()
         Serial.println(" ");
         Serial.println(currentArguments[i]);
     }
-    
-    Serial.println(" ");    
+
+    Serial.println(" ");
 }
 
 
 void terminal::printInfo()
 {
+    static int commandCounter = sizeof(availableCommands) / sizeof(command);
+
     for (int i = 0; i < commandCounter; i++)
     {
         Serial.println(availableCommands[i].name);
-        
+
 
     }
-    Serial.println(" ");   
+
+    Serial.println(" ");
 }
 
-void terminal::retreive(char** arguments)
-{
-  Serial.println("in retreive function");
-}
+
 
 
 void terminal::erase(char** arguments)
 {
   Serial.println("in erase function");
-}
-
-
-void terminal::files(char** arguments)
-{
-  Serial.println("in files function");
 }
 
 
@@ -236,11 +232,56 @@ void terminal::kill(char** arguments)
 
 void terminal::store (char** arguments)
 {
- 
- Serial.println("in store function");
- if (fat::existsInFAT()) 
- {
 
+ Serial.println("in store function");
+ int size = strlen(arguments[1] + 1);
+
+ if(fileAllocationSystem::addFileToTable(arguments[0], size, arguments[1]))
+ {
+     Serial.print("File: ");
+     Serial.print(arguments[0]);
+     Serial.print("Stored to file system");
+ }
+ else
+ {
+     Serial.println("Failed to store file onto filesystem!");
  }
 
 }
+
+
+void terminal::retreive(char** arguments)
+{
+    Serial.println("in retreive function");
+
+    char* retreivedData = fileAllocationSystem::readFileName(arguments[0]);
+    Serial.print("Retreived data is: ");
+    Serial.print(retreivedData);
+
+    delete[] retreivedData;
+}
+
+ void terminal::erase(char** arguments)
+ {
+     Serial.println("In erase function");
+
+     if(fileAllocationSystem::deleteFile(arguments[0]));
+     {
+         Serial.print("File: ");
+         Serial.print(arguments[0]);
+         Serial.print(" has been deleted");
+     }
+     else
+     {
+         Serial.println("Error! File not found on fs.");
+     }
+ }
+
+
+ void terminal::files(char** arguments)
+ {
+     Serial.println("In files function");
+     fileAllocationSystem::printFilenames();
+ }
+
+

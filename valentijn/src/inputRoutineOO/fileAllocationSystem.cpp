@@ -1,7 +1,10 @@
 #include"fileAllocationSystem.h"
 
-bool fileAllocationSystem::initializeFileAllocationTable
+EERef fileAllocationSystem::noOfFiles = EEPROM[0];
+
+bool fileAllocationSystem::initializeFileAllocationTable()
 {
+    int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;
     noOfFiles = 0; //start with 0 files
     Serial.print("FAT initialized, number of files that currently reside within the filesystem ");
     Serial.println(noOfFiles);
@@ -25,8 +28,8 @@ bool fileAllocationSystem::existsInTable(char* fileName)
 {
     for (int i = 0; i < MAX_FAT_ENTRIES; i++)
     {
-        char* FileEntryName = ReadFatEntry(i).fileName; //waar haalt ie die filename uit de struct vandaan?
-        if (strcmp(fileName, FileEntryName) == 0);
+        char* fileEntryName = readFatEntry(i).fileName; //waar haalt ie die filename uit de struct vandaan?
+        if (strcmp(fileName, fileEntryName) == 0)
         {
             return true;
         }
@@ -48,7 +51,7 @@ bool fileAllocationSystem::addFileToTable(char* fileName, int size, char* data)
     }
 
     file fileEntry = (file) {"", startPosition, size};
-    strcpy(fileEntry.name, fileName); //save filename to file entry
+    strcpy(fileEntry.fileName, fileName); //save filename to file entry
     writeFatEntry(firstEmptyFile(), fileEntry);
     writeFileData(fileEntry.startPosition, size, data);
     noOfFiles = noOfFiles + 1;
@@ -71,7 +74,7 @@ int fileAllocationSystem::firstEmptyFile()
 }
 
 
-void fileAllocationSystem::readFatEntry(byte position)
+fileAllocationSystem::file fileAllocationSystem::readFatEntry(byte position)
 {
     file fileOnFs;
     EEPROM.get(position, fileOnFs);
@@ -110,8 +113,9 @@ char* fileAllocationSystem::readFileData(int position, int size)
 
 
 
-int fileAllocationSystem::getNextFileEntry(int file)
+int fileAllocationSystem::getNextFileEntry(int size)
 {
+    static int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;
     int firstEmptySpot = firstFatElement + 1;
     bool firstFileInFs = false;
 
@@ -122,9 +126,11 @@ int fileAllocationSystem::getNextFileEntry(int file)
     else
     {
         firstFileInFs = true;
+
         for(byte i = 0; i < MAX_FAT_ENTRIES; i++)
         {
-            file fileOnFs = readFatEntry(i);
+            fileAllocationSystem::file fileOnFs = readFatEntry(i);
+
             if(fileOnFs.length > 0)
             {
                 if(firstFileInFs == true && size < fileOnFs.startPosition - firstEmptySpot)
@@ -151,7 +157,7 @@ char* fileAllocationSystem::readFileName(char* fileName)
     int fileEntry = existsInTable(fileName);
     if(fileEntry >= 0)
     {
-        file fileOnFs = readFatEntry(fileEntry);
+        fileAllocationSystem::file fileOnFs = readFatEntry(fileEntry);
         return readFileData(fileOnFs.startPosition, fileOnFs.size);
     }
     else
@@ -166,7 +172,7 @@ bool fileAllocationSystem::deleteFile(char* fileName)
     if(fileEntry > 0)
     {
         file fileOnFs = readFatEntry(fileEntry);
-        fileOnFs.name[0] = '\0';
+        fileOnFs.fileName[0] = '\0';
         fileOnFs.startPosition = 0;
         fileOnFs.length = 0;
 
@@ -179,3 +185,27 @@ bool fileAllocationSystem::deleteFile(char* fileName)
         return false;
     }
 }
+
+bool printFilenames()
+{
+    for(byte i = 0; i < MAX_FAT_ENTRIES; i++)
+    {
+        file fileEntry = readFatEntry(i);
+        if(fileEntry.size > 0)
+        {
+            Serial.print("File attributes: ");
+            Serial.print(i);
+            Serial.println("File name: ");
+            Serial.print(fileEntry.name);
+            Serial.println("File start position: ");
+            Serial.print(fileEntry.startPosition);
+            Serial.println("File end position: ");
+            Serial.print(fileEntry.startPosition + file.length); //TODO: veranderen naar fileEntry.length
+            Serial.print("File size: ");
+            Serial.print(fileEntry.length);
+            Serial.println(" B");
+        }
+    }
+}
+
+    //static int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;

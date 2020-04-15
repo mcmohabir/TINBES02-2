@@ -7,14 +7,10 @@ processManager::processManager()
 void processManager::executeProcess()
 {
     terminal terminalObj;
-    
+
     while (1)
     {
-        terminalObj.initalizeTerminal();
+        terminalObj.initializeTerminal();
     }
 
 }
-
-
-
-

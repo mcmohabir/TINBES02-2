@@ -2,6 +2,7 @@
 #define TERMINAL_H
 
 #include "Arduino.h"
+#include "fileAllocationSystem.h"
 
 #define MAX_ARGS 3
 #define arrSize 12
@@ -11,12 +12,11 @@ class terminal
 {
 public:
     terminal();
-    void initalizeTerminal();
+    void initializeTerminal();
 
 private:
     char **currentArguments = new char *[MAX_ARGS];
     char *currentCommandBuffer = new char[arrSize];
-    static int commandCounter = sizeof(availableCommands) / sizeof(command);
 
     bool incomingData = false;
     bool initialCommand = false;
@@ -26,7 +26,8 @@ private:
 
     int scanBuffer();
     void assignCommand(char **arguments);
-    bool writeCommand(char inputChar) bool writeArgument(char inputChar);
+    bool writeCommand(char inputChar);
+    bool writeArgument(char inputChar);
     char *chrcat(char *appendToChar, char whatTo);
     void store(char **arguments);
     void retreive(char **arguments);
@@ -41,19 +42,20 @@ private:
     void printBufferArray();
     void printInfo();
     void reset();
-    typedef void(terminal::*commandFun)(char** arguments)
+    typedef void(terminal::*commandFun)(char** arguments);
 
     typedef struct commandStruct
     {
         char name[arrSize];
         terminal::commandFun funPtr;
-        int cID;
-        char fileName[arrSize];
-        int size;
-        int pID
+        //int cID;
+        //  char fileName[arrSize];
+        //  int size;
+        //int pID;
     } command;
-    
+
     static command availableCommands[];
+};
 /*
     static command commandIndex[] =
     {
