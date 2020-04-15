@@ -6,6 +6,7 @@
 #include "Arduino.h"
 
 #define FAT_SIZE 10
+#define START 1
 
 class fat
 {

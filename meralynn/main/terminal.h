@@ -34,7 +34,7 @@ class terminal
     char* chrcat(char* appendTo, char what);
 
     void createFAT(char** args);
-    void printBufferArray();
+    void printInput();
     void printInfo();
     void reset();
 

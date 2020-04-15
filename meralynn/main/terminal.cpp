@@ -2,7 +2,7 @@
 
 // Struct array
 terminal::commandType terminal::commandArray[] = {
-  {"initFAT",     &terminal::createFAT,   0},
+  //{"initFAT",     &terminal::createFAT,   0},
   {"store",       &terminal::store,       2},
   {"retreive",    &terminal::retreive,    1},
   {"erase",       &terminal::erase,       1},
@@ -20,13 +20,16 @@ terminal::commandType terminal::commandArray[] = {
 
 terminal::terminal()
 {
-    curCommandBuf[0] = '\0';
-    for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
-    {
-        curArgs[i] = new char[arrSize];
-        curArgs[i][0] = '\0';
-    }
+  curCommandBuf[0] = '\0';
+  for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
+  {
+    curArgs[i] = new char[arrSize];
+    curArgs[i][0] = '\0';
+  }
+
+  fat::initFAT();
 }
+
 
 void terminal::execTerminal()
 {
@@ -34,7 +37,7 @@ void terminal::execTerminal()
   if (commandEntered == 0) return false;
 
   assignCommand(curArgs);
-  reset();
+//  reset();
 
 }
 
@@ -75,17 +78,16 @@ int terminal::scanBuffer()
     }
 
     incomingData = true;
-    printBufferArray();
+    printInput();
     return 1;
   }
-
 }
 
 // Check if input matches existing commmand and go to corresponding function
 void terminal::assignCommand(char** args)
 {
   if (!incomingData)
-    return;
+    return false;
 
   for (int i = 0; i < (sizeof(commandArray) / sizeof(commandType)); i++)
   {
@@ -110,7 +112,6 @@ void terminal::assignCommand(char** args)
   printInfo();
   incomingData = false;
   reset();
-
 }
 
 
@@ -151,16 +152,14 @@ char* terminal::chrcat(char* appendTo, char what)
 //==============================================================================
 // Print functions
 
-void terminal::printBufferArray()
+void terminal::printInput()
 {
-  if (!incomingData)
-    return;
+//  if (!incomingData)
+//    return;
 
-  Serial.print("Your command is: ");
-  Serial.println(curCommandBuf);
-
-  Serial.print("Your arguments are: ");
-  for (int i = 0; i < sizeof(curArgs) + 1; i++)
+  Serial.print("$ ");
+  Serial.print(curCommandBuf);
+  for (byte i = 0; i < sizeof(curArgs) + 1; i++)
   {
     Serial.print(" ");
     Serial.print(curArgs[i]);
@@ -181,18 +180,18 @@ void terminal::printInfo()
 
 //==============================================================================
 // FAT Functions
-
-void terminal::createFAT(char** args)
-{
+/*
+  void terminal::createFAT(char** args)
+  {
   fat::initFAT();
-}
-
+  }
+*/
 
 //==============================================================================
 // Command functions
 void terminal::store (char** args)
 {
-  Serial.println("in store function");
+  //  Serial.println("in store function");
   int size = strlen(args[1]) + 1;
   if (fat::addFile(args[0], size, args[1]))
   {
@@ -208,15 +207,14 @@ void terminal::store (char** args)
 
 void terminal::retreive(char** args)
 {
-  Serial.println("in retreive function");
   char* data = fat::readFile(args[0]);
+  Serial.println(data);
   delete[] data;
 }
 
 
 void terminal::erase(char** args)
 {
-  Serial.println("in erase function");
   if (fat::deleteFile(args[0]))
   {
     Serial.print("deleted file: ");
@@ -230,7 +228,6 @@ void terminal::erase(char** args)
 
 void terminal::files(char** args)
 {
-  Serial.println("in files function");
   fat::listFiles();
 }
 

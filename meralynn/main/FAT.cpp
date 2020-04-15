@@ -10,16 +10,16 @@ bool fat::initFAT()
   Serial.println("initFAT: initializing...");
 
   noOfFiles = 0;
-  Serial.print("initFAT: noOfFiles: ");
-  Serial.println(noOfFiles);
-
-  Serial.print("initFAT: last FAT byte: ");
-  Serial.println(sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE));
+//  Serial.print("initFAT: noOfFiles: ");
+//  Serial.println(noOfFiles);
+//
+//  Serial.print("initFAT: last FAT byte: ");
+//  Serial.println(sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE));
 
   for (byte i = 0; i < FAT_SIZE; i++)
   {
-    Serial.print("initFAT: write empty file: ");
-    Serial.println(i);
+//    Serial.print("initFAT: write empty file: ");
+//    Serial.println(i);
     eepromfile emptyFile = (eepromfile) {
       "", 0, 0
     };
@@ -35,22 +35,31 @@ bool fat::initFAT()
 
 bool fat::addFile(char* name, int size, char* data)
 {
-  if (!existsInFAT(name))
+  if(noOfFiles >= FAT_SIZE)
   {
+    Serial.println("FAT full");
+    return false;
+  }
+  
+  if (existsInFAT(name) != -1)
+  {
+    Serial.println("Filename exists in FAT");
     return false;
   }
 
   int startPos = getStartPos(size);
   if (startPos == -1)
+  {
+    Serial.println("Not enough space available");
     return false;
-
+  }
   eepromfile storeFile = (eepromfile) {
     "",
     startPos,
     size
   };
-
   strcpy(storeFile.name, name);
+  
   writeFATEntry(firstEmptyFile(), storeFile);
   writeData(storeFile.beginPos, size, data);
   noOfFiles += 1;
@@ -94,14 +103,14 @@ bool fat::deleteFile(char* name)
 fat::eepromfile fat::readFATEntry(byte pos)
 {
   eepromfile file;
-  EEPROM.get(1 + pos * sizeof(eepromfile), file);
+  EEPROM.get(START + pos * sizeof(eepromfile), file);
   return file;
 }
 
 
 bool fat::writeFATEntry(byte pos, eepromfile file)
 {
-  EEPROM.put(1 + pos * sizeof(eepromfile), file);
+  EEPROM.put(START + pos * sizeof(eepromfile), file);
   return true;
 }
 
@@ -135,7 +144,6 @@ bool fat::writeData(int startPos, int size, char* data)
 //==============================================================================
 //Get starting positions helper functions
 
-//Get starting position of next file in fat?? -- dont understand
 int fat::getNextFileStartPos(int i)
 {
   for (byte n = i + 1; n < FAT_SIZE; n++)
@@ -147,7 +155,7 @@ int fat::getNextFileStartPos(int i)
 
 }
 
-// Get first availablle byte to store data
+// Get first available byte to store data
 int fat::getStartPos(int size)
 {
   // noOfFiles + FAT size + padding byte
@@ -187,7 +195,7 @@ int fat::getStartPos(int size)
 
 int fat::existsInFAT(char* filename)
 {
-  for (int i = 0; i < FAT_SIZE; i++)
+  for (byte i = 0; i < FAT_SIZE; i++)
   {
     eepromfile file = readFATEntry(i);
     if (strcmp(file.name, filename) == 0) return i;
@@ -204,7 +212,6 @@ int fat::firstEmptyFile()
   }
   return -1;
 }
-
 
 
 bool fat::listFiles()
