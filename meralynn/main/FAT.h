@@ -12,13 +12,12 @@ class fat
 {
   public:
     static EERef noOfFiles;
-
     static bool initFAT();
+    static char* readFile(char* name);
     static bool addFile(char* name, int size, char* data);
     static bool deleteFile(char* name);
-    static char* readFile(char* name);
     static bool listFiles();
-
+    static int freespace();
   private:
 
     typedef struct {
@@ -26,14 +25,14 @@ class fat
       int beginPos;
       int length;
     } eepromfile;
-    
+
     static eepromfile readFATEntry(byte pos);
     static bool writeFATEntry(byte pos, eepromfile f);
-    static int getStartPos(int size);
-    static int firstEmptyFile();
-    static bool writeData(int startPos, int size, char* data);
     static char* readData(int pos, int size);
+    static bool writeData(int startPos, int size, char* data);
+    static int firstEmptyFile();
     static int getNextFileStartPos(int i);
+    static int getStartPos(int size);
     static int existsInFAT(char* filename);
 
 

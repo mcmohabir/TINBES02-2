@@ -10,16 +10,16 @@ bool fat::initFAT()
   Serial.println("initFAT: initializing...");
 
   noOfFiles = 0;
-//  Serial.print("initFAT: noOfFiles: ");
-//  Serial.println(noOfFiles);
-//
-//  Serial.print("initFAT: last FAT byte: ");
-//  Serial.println(sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE));
+  //  Serial.print("initFAT: noOfFiles: ");
+  //  Serial.println(noOfFiles);
+  //
+  //  Serial.print("initFAT: last FAT byte: ");
+  //  Serial.println(sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE));
 
   for (byte i = 0; i < FAT_SIZE; i++)
   {
-//    Serial.print("initFAT: write empty file: ");
-//    Serial.println(i);
+    //    Serial.print("initFAT: write empty file: ");
+    //    Serial.println(i);
     eepromfile emptyFile = (eepromfile) {
       "", 0, 0
     };
@@ -35,12 +35,12 @@ bool fat::initFAT()
 
 bool fat::addFile(char* name, int size, char* data)
 {
-  if(noOfFiles >= FAT_SIZE)
+  if (noOfFiles >= FAT_SIZE)
   {
     Serial.println("FAT full");
     return false;
   }
-  
+
   if (existsInFAT(name) != -1)
   {
     Serial.println("Filename exists in FAT");
@@ -59,7 +59,7 @@ bool fat::addFile(char* name, int size, char* data)
     size
   };
   strcpy(storeFile.name, name);
-  
+
   writeFATEntry(firstEmptyFile(), storeFile);
   writeData(storeFile.beginPos, size, data);
   noOfFiles += 1;
@@ -192,6 +192,28 @@ int fat::getStartPos(int size)
 
 //==============================================================================
 // Helper functions
+int fat::freespace()
+{
+  // Maximale grootte van een bestand dat nog geplaatst kan worden
+  // Sorteer FAT op beginpositie en pak het grootste verschil bytes tussen bestanden
+  if (noOfFiles == 10) return -1;
+  
+  int freeSpace = EEPROM.length();
+
+  freeSpace -= sizeof(noOfFiles);
+  freeSpace -= (sizeof(eepromfile) * FAT_SIZE);
+
+  for (byte i = 0; i < FAT_SIZE; i++)
+  {
+    eepromfile file = readFATEntry(i);
+    if (file.length > 0)
+      freeSpace -= file.length;
+  }
+
+  return freeSpace;
+
+}
+
 
 int fat::existsInFAT(char* filename)
 {
@@ -216,11 +238,14 @@ int fat::firstEmptyFile()
 
 bool fat::listFiles()
 {
+  bool fileExists = false;
+
   for (byte i = 0; i < FAT_SIZE; i++)
   {
     eepromfile file = readFATEntry(i);
     if (file.length > 0) // Only print files that contain data
     {
+      fileExists = true;
       Serial.print("file: ");
       Serial.print(i);                                  // File index from FAT
       Serial.print("\t- ");
@@ -234,5 +259,9 @@ bool fat::listFiles()
       Serial.println(" bytes)");
     }
   }
+
+  if (!fileExists)
+    Serial.println("No files in FAT");
+
   return true;
 }

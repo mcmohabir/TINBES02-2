@@ -234,7 +234,15 @@ void terminal::files(char** args)
 
 void terminal::freespace(char** args)
 {
-  Serial.println("in freespace function");
+  int freeSpace = fat::freespace();
+  if(freeSpace == 0 || freeSpace == -1)
+  {
+    Serial.print("No free space available");
+    return;
+  }
+
+  Serial.print(freeSpace);
+  Serial.println(" bytes available");
 }
 
 
