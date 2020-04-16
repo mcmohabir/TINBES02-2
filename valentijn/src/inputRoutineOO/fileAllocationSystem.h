@@ -21,6 +21,7 @@ public:
     static bool deleteFile(char* fileName);
     static bool printFilenames();
     static char* readFileName(char* fileName);
+    static int freespace();
 
 private:
     static int firstEmptyFile();
@@ -40,4 +41,4 @@ private:
 };
 
 
-#endif
+#endif   

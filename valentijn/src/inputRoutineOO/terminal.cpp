@@ -19,7 +19,9 @@ terminal::command terminal::availableCommands[] =
 terminal::terminal()
 {
     terminal::reset();
+    fileAllocationSystem::initializeFileAllocationTable();
 }
+
 
 
 void terminal::initializeTerminal()
@@ -29,7 +31,6 @@ void terminal::initializeTerminal()
     {
         return;
     }
-
     assignCommand(currentArguments);
 }
 
@@ -62,7 +63,7 @@ int terminal::scanBuffer()
 
 void terminal::assignCommand(char** arguments)
 {
-    static int commandCounter = sizeof(availableCommands) / sizeof(command);
+   int commandCounter = sizeof(availableCommands) / sizeof(command);
 
     if(!incomingData)
      {
@@ -191,6 +192,18 @@ void terminal::printInfo()
 void terminal::freespace(char** arguments)
 {
   Serial.println("in freespace function");
+
+  int spaceOnFS = fileAllocationSystem::freespace();
+  if(spaceOnFS == -1)
+  {
+      Serial.println("Filesystem full!");
+  }
+  else
+  {
+      Serial.print("There is: ");
+      Serial.print(spaceOnFS);
+      Serial.print(" B available");
+  }
 }
 
 

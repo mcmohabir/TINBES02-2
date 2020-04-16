@@ -223,4 +223,25 @@ bool fileAllocationSystem::printFilenames()
     }
 }
 
-    //static int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;
+int fileAllocationSystem::freespace()
+{
+    int availableSpace = EEPROM.length();
+    availableSpace = availableSpace - (sizeof(file) * MAX_FAT_ENTRIES); //calculate the total size that fs can take
+    if(noOfFiles == 10)
+    {
+        return -1;
+    }
+
+    for(byte i = 0; i < MAX_FAT_ENTRIES; i++)
+    {
+        file fileEntry = readFatEntry(i);
+
+        if(fileEntry.length > 0)
+        {
+            availableSpace = availableSpace - fileEntry.length;
+        }
+    }
+    return availableSpace;
+}
+
+//int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;

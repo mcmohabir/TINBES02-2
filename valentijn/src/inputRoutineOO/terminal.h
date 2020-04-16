@@ -13,6 +13,7 @@ class terminal
 public:
     terminal();
     void initializeTerminal();
+    void initFat();
 
 private:
     char **currentArguments = new char *[MAX_ARGS];
