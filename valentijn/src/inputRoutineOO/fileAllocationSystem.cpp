@@ -2,6 +2,8 @@
 
 EERef fileAllocationSystem::noOfFiles = EEPROM[0];
 
+
+
 bool fileAllocationSystem::initializeFileAllocationTable()
 {
     int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;
@@ -37,6 +39,7 @@ bool fileAllocationSystem::existsInTable(char* fileName)
     return false;
 }
 
+
 bool fileAllocationSystem::addFileToTable(char* fileName, int size, char* data)
 {
     if(!existsInTable(fileName))
@@ -44,7 +47,7 @@ bool fileAllocationSystem::addFileToTable(char* fileName, int size, char* data)
         return false;
     }
 
-    int startPosition = getStartPosition(size);
+    int startPosition = (size);
     if(startPosition == -1)
     {
         return false;
@@ -57,6 +60,10 @@ bool fileAllocationSystem::addFileToTable(char* fileName, int size, char* data)
     noOfFiles = noOfFiles + 1;
     return true;
 }
+
+
+/*privates*/
+
 
 
 int fileAllocationSystem::firstEmptyFile()
@@ -96,6 +103,11 @@ bool fileAllocationSystem::writeFileData(int startPosition, int size, char* data
     return true;
 }
 
+bool fileAllocationSystem::writeFatEntry(byte position, file f)
+{
+    EEPROM.put(EEPROM_START_ADDR + position * sizeof(file), f);
+    return true;
+}
 
 char* fileAllocationSystem::readFileData(int position, int size)
 {
@@ -113,7 +125,7 @@ char* fileAllocationSystem::readFileData(int position, int size)
 
 
 
-int fileAllocationSystem::getNextFileEntry(int size)
+int fileAllocationSystem::getFileStart(int size)
 {
     static int firstFatElement = sizeof(noOfFiles) + sizeof(file) * MAX_FAT_ENTRIES;
     int firstEmptySpot = firstFatElement + 1;
@@ -138,7 +150,7 @@ int fileAllocationSystem::getNextFileEntry(int size)
                     return firstEmptySpot;
                 }
 
-                if(size < getNextFileEntry(i) - (fileOnFs.startPosition) - firstEmptySpot)
+                if(size < getFileStart(i) - (fileOnFs.startPosition) - firstEmptySpot)
                 {
                     return (fileOnFs.startPosition + fileOnFs.length) + 1;
                 }
@@ -152,13 +164,14 @@ int fileAllocationSystem::getNextFileEntry(int size)
 }
 
 
+
 char* fileAllocationSystem::readFileName(char* fileName)
 {/*TODO: implement file entry counter function*/
     int fileEntry = existsInTable(fileName);
     if(fileEntry >= 0)
     {
-        fileAllocationSystem::file fileOnFs = readFatEntry(fileEntry);
-        return readFileData(fileOnFs.startPosition, fileOnFs.size);
+        file fileOnFs = readFatEntry(fileEntry);
+        return readFileData(fileOnFs.startPosition, fileOnFs.length);
     }
     else
     {
@@ -186,21 +199,23 @@ bool fileAllocationSystem::deleteFile(char* fileName)
     }
 }
 
-bool printFilenames()
+
+
+bool fileAllocationSystem::printFilenames()
 {
     for(byte i = 0; i < MAX_FAT_ENTRIES; i++)
     {
         file fileEntry = readFatEntry(i);
-        if(fileEntry.size > 0)
+        if(fileEntry.length > 0)
         {
             Serial.print("File attributes: ");
             Serial.print(i);
             Serial.println("File name: ");
-            Serial.print(fileEntry.name);
+            Serial.print(fileEntry.fileName);
             Serial.println("File start position: ");
             Serial.print(fileEntry.startPosition);
             Serial.println("File end position: ");
-            Serial.print(fileEntry.startPosition + file.length); //TODO: veranderen naar fileEntry.length
+            Serial.print(fileEntry.startPosition + fileEntry.length); //TODO: veranderen naar fileEntry.length
             Serial.print("File size: ");
             Serial.print(fileEntry.length);
             Serial.println(" B");

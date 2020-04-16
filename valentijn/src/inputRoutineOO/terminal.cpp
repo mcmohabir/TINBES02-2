@@ -188,12 +188,6 @@ void terminal::printInfo()
 
 
 
-void terminal::erase(char** arguments)
-{
-  Serial.println("in erase function");
-}
-
-
 void terminal::freespace(char** arguments)
 {
   Serial.println("in freespace function");
@@ -265,7 +259,7 @@ void terminal::retreive(char** arguments)
  {
      Serial.println("In erase function");
 
-     if(fileAllocationSystem::deleteFile(arguments[0]));
+     if(fileAllocationSystem::deleteFile(arguments[0]))
      {
          Serial.print("File: ");
          Serial.print(arguments[0]);
@@ -283,5 +277,3 @@ void terminal::retreive(char** arguments)
      Serial.println("In files function");
      fileAllocationSystem::printFilenames();
  }
-
-

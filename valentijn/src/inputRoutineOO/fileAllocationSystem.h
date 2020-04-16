@@ -5,36 +5,38 @@
 #include "Arduino.h"
 
 #define MAX_FAT_ENTRIES 10
+#define MAX_FILE_DESC 12
+#define EEPROM_START_ADDR 1
 
 class fileAllocationSystem
 {
-    public:
+
+public:
     static EERef noOfFiles;//start storing the inputted files in location 160 of EEPROM
 
     static bool initializeFileAllocationTable();
     static int fileInTable();
     static bool existsInTable(char* fileName);
-
-    private:
     static bool addFileToTable(char* fileName, int size, char* data);
-    static int getStartPosition(int size);
+    static bool deleteFile(char* fileName);
+    static bool printFilenames();
+    static char* readFileName(char* fileName);
+
+private:
     static int firstEmptyFile();
     static bool writeFileData(int startPosition, int size, char* data);
     static char* readFileData(int position, int size);
-    static int getNextFileEntry(int file);
-    static char* readFileName(char* fileName);
-    static bool deleteFile(char* fileName);
-    static bool printFilenames();
+    static int getFileStart(int size);
 
     typedef struct fileStructure
     {
-       char fileName;
+       char fileName[MAX_FILE_DESC];
        int startPosition;
        int length;
     } file;
 
   static file readFatEntry(byte position);
-  static void writeFatEntry(byte position, file f);
+  static bool writeFatEntry(byte position, file f);
 };
 
 
