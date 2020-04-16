@@ -194,15 +194,15 @@ int fat::getStartPos(int size)
 // Helper functions
 int fat::freespace()
 {
-  // Maximale grootte van een bestand dat nog geplaatst kan worden
-  // Sorteer FAT op beginpositie en pak het grootste verschil bytes tussen bestanden
+  // Returns total free space, not largest free space between files
   if (noOfFiles == 10) return -1;
-  
-  int freeSpace = EEPROM.length();
 
+  int freeSpace = EEPROM.length();
   freeSpace -= sizeof(noOfFiles);
   freeSpace -= (sizeof(eepromfile) * FAT_SIZE);
 
+  int unusedSpace = freeSpace - ((MAX_ARG_SIZE) * FAT_SIZE);
+  freeSpace -= unusedSpace;
   for (byte i = 0; i < FAT_SIZE; i++)
   {
     eepromfile file = readFATEntry(i);

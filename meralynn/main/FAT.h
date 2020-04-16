@@ -7,7 +7,8 @@
 
 #define FAT_SIZE 10
 #define START 1
-
+#define MAX_COMMAND_SIZE 12
+#define MAX_ARG_SIZE 60
 class fat
 {
   public:
@@ -21,7 +22,7 @@ class fat
   private:
 
     typedef struct {
-      char name[12];
+      char name[14];
       int beginPos;
       int length;
     } eepromfile;

@@ -6,7 +6,7 @@
 #include "FAT.h"
 
 #define MAX_COMMAND_ARGS 3
-#define arrSize 12
+
 
 class terminal
 {
@@ -16,7 +16,7 @@ class terminal
 
   private:
     char** curArgs = new char*[MAX_COMMAND_ARGS]; // Arguments buffer
-    char* curCommandBuf = new char[arrSize];      // Command buffer
+    char* curCommandBuf = new char[MAX_COMMAND_SIZE];      // Command buffer
 
     // Variables
     bool incomingData = false;
@@ -31,7 +31,7 @@ class terminal
     // Writing helper functions
     bool writeCommand(char inputChar);
     bool writeArg(char inputChar);
-    char* chrcat(char* appendTo, char what);
+    char* chrcat(char* appendTo, char character, int maxLength);
 
     void createFAT(char** args);
     void printInput();
@@ -54,7 +54,7 @@ class terminal
     typedef void (terminal::*commandFunction)(char** args);
     
     typedef struct {
-      char name[arrSize];
+      char name[MAX_COMMAND_SIZE];
       terminal::commandFunction func;
       byte amountArgs;
     } commandType;

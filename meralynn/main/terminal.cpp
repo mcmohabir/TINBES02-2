@@ -23,7 +23,7 @@ terminal::terminal()
   curCommandBuf[0] = '\0';
   for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
   {
-    curArgs[i] = new char[arrSize];
+    curArgs[i] = new char[MAX_ARG_SIZE];
     curArgs[i][0] = '\0';
   }
 
@@ -83,7 +83,7 @@ int terminal::scanBuffer()
   }
 }
 
-// Check if input matches existing commmand and go to corresponding function
+// Check if input matches existing acommmand and go to corresponding function
 void terminal::assignCommand(char** args)
 {
   if (!incomingData)
@@ -123,7 +123,7 @@ bool terminal::writeCommand(char inputChar)
   if (inputChar == ' ' || inputChar == '\n')
     return true;
 
-  curCommandBuf = chrcat(curCommandBuf, inputChar);
+  curCommandBuf = chrcat(curCommandBuf, inputChar, MAX_COMMAND_SIZE);
   return false;
 }
 
@@ -133,18 +133,18 @@ bool terminal::writeArg(char inputChar)
   if (inputChar == ' ' || inputChar == '\n')
     return true;
 
-  curArgs[curArgIter] = chrcat(curArgs[curArgIter], inputChar);
+  curArgs[curArgIter] = chrcat(curArgs[curArgIter], inputChar, MAX_ARG_SIZE);
   return false;
 }
 
 
 // Add character to buffer
-char* terminal::chrcat(char* appendTo, char what)
+char* terminal::chrcat(char* appendTo, char character, int maxLength)
 {
   byte len = strlen(appendTo);
-  if (len == (arrSize - 1)) return appendTo;
+  if (len == (maxLength - 1)) return appendTo;
 
-  appendTo[len] = what;
+  appendTo[len] = character;
   appendTo[len + 1] = 0;
   return appendTo;
 }
