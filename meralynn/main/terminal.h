@@ -49,6 +49,7 @@ class terminal
     void suspend(char** args);
     void resume(char** args);
     void kill(char** args);
+    void fatsize(char** args);
 
 
     typedef void (terminal::*commandFunction)(char** args);

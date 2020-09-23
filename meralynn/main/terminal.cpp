@@ -198,9 +198,9 @@ void terminal::store (char** args)
   int size = strlen(args[1]) + 1;
   if (fat::addFile(args[0], size, args[1]))
   {
-    Serial.print("stored: ");
+    Serial.print("stored ");
     Serial.print(args[0]);
-    Serial.print("with data: ");
+    Serial.print(" with data: ");
     Serial.println(args[1]);
   }
   else
@@ -242,7 +242,7 @@ void terminal::freespace(char** args)
   int freeSpace = fat::freespace();
   if (freeSpace == 0 || freeSpace == -1)
   {
-    Serial.print("No free space available");
+    Serial.println("No free space available");
     return;
   }
 

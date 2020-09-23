@@ -196,24 +196,40 @@ int fat::getStartPos(int size)
 
 int fat::freespace()
 {
-  // Returns total free space, not largest free space between files
   if (noOfFiles == 10) return -1;
+  if (noOfFiles == 0) return (MAX_ARG_SIZE * FAT_SIZE);
 
-  int freeSpace = EEPROM.length();
-  freeSpace -= sizeof(noOfFiles);
-  freeSpace -= (sizeof(eepromfile) * FAT_SIZE);
+  int firstWritablePos = START + sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE);
+  int unusedSpace = EEPROM.length() - (firstWritablePos - (MAX_ARG_SIZE * FAT_SIZE));
+  
+  int startPosSpace = firstWritablePos;
+  int largestFreeSpace = 0;
+  int endPosSpace = 0;
+  int space = 0;
 
-  int unusedSpace = freeSpace - ((MAX_ARG_SIZE) * FAT_SIZE);
-  freeSpace -= unusedSpace;
   for (byte i = 0; i < FAT_SIZE; i++)
   {
     eepromfile file = readFATEntry(i);
-    if (file.length > 0)
-      freeSpace -= file.length;
+    if (file.length <= 0) continue;
+    
+    if (i == (EEPROM.length() - unusedSpace))
+    {
+      endPosSpace = EEPROM.length() - unusedSpace;
+    }
+    else {
+      endPosSpace = file.beginPos - 1;
+    }
+
+    space = endPosSpace - startPosSpace;
+    if (space > largestFreeSpace)
+    {
+      largestFreeSpace = space;
+    }
+
+    startPosSpace = file.beginPos + file.length;
   }
 
-  return freeSpace;
-
+  return largestFreeSpace;
 }
 
 
