@@ -3,7 +3,7 @@
 EERef fat::noOfFiles = EEPROM[0];
 
 //==============================================================================
-// Initialize File Allocation Table
+//== Initialize File Allocation Table
 
 bool fat::initFAT()
 {
@@ -31,7 +31,7 @@ bool fat::initFAT()
 }
 
 //==============================================================================
-// Files
+//== Files
 
 bool fat::addFile(char* name, int size, char* data)
 {
@@ -98,7 +98,7 @@ bool fat::deleteFile(char* name)
 }
 
 //==============================================================================
-// Read and write entry
+//== Read and write entry
 
 fat::eepromfile fat::readFATEntry(byte pos)
 {
@@ -115,7 +115,8 @@ bool fat::writeFATEntry(byte pos, eepromfile file)
 }
 
 //==============================================================================
-// Read and write data
+//== Read and write data
+
 char* fat::readData(int pos, int size)
 {
   char* data = new char[size]; // Variable to store data in
@@ -142,7 +143,7 @@ bool fat::writeData(int startPos, int size, char* data)
 
 
 //==============================================================================
-//Get starting positions helper functions
+//== Get starting positions helper functions
 
 int fat::getNextFileStartPos(int i)
 {
@@ -191,7 +192,8 @@ int fat::getStartPos(int size)
 
 
 //==============================================================================
-// Helper functions
+//== Helper functions
+
 int fat::freespace()
 {
   // Returns total free space, not largest free space between files

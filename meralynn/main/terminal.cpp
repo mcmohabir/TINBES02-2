@@ -1,6 +1,7 @@
 #include "terminal.h"
 
-// Struct array
+// Commands struct array
+
 terminal::commandType terminal::commandArray[] = {
   //{"initFAT",     &terminal::createFAT,   0},
   {"store",       &terminal::store,       2},
@@ -37,7 +38,7 @@ void terminal::execTerminal()
   if (commandEntered == 0) return false;
 
   assignCommand(curArgs);
-//  reset();
+  //  reset();
 
 }
 
@@ -50,14 +51,14 @@ void terminal::reset()
   for (byte i = 0; i < MAX_COMMAND_ARGS; i++)
     curArgs[i][0] = '\0';
   curArgIter = 0;
-  firstCommand = false;
+  firstCommandSet = false;
 }
 
 
 //==============================================================================
-// Command line
+//== Command line
 
-// Scan commandline and put input in correct buffers
+// Scan command line and put input in correct buffers
 int terminal::scanBuffer()
 {
   char input;
@@ -68,8 +69,8 @@ int terminal::scanBuffer()
 
     if (input != '\n')
     {
-      if (!firstCommand)
-        firstCommand = writeCommand(input);
+      if (!firstCommandSet)
+        firstCommandSet = writeCommand(input);
 
       else {
         curArgIter += writeArg(input);
@@ -83,9 +84,10 @@ int terminal::scanBuffer()
   }
 }
 
-// Check if input matches existing acommmand and go to corresponding function
+// Check if input matches existing commmand and go to corresponding function
 void terminal::assignCommand(char** args)
 {
+  // No input to process
   if (!incomingData)
     return false;
 
@@ -109,14 +111,14 @@ void terminal::assignCommand(char** args)
   }
 
   Serial.println((String)"Command '" + curCommandBuf + "' not recognised. These are the available commands: \n");
-  printInfo();
+  printCommandArray();
   incomingData = false;
   reset();
 }
 
 
 //==============================================================================
-// Writing helper functions
+//== Writing helper functions
 
 bool terminal::writeCommand(char inputChar)
 {
@@ -150,12 +152,12 @@ char* terminal::chrcat(char* appendTo, char character, int maxLength)
 }
 
 //==============================================================================
-// Print functions
+//== Print functions
 
 void terminal::printInput()
 {
-//  if (!incomingData)
-//    return;
+  //  if (!incomingData)
+  //    return;
 
   Serial.print("$ ");
   Serial.print(curCommandBuf);
@@ -168,7 +170,7 @@ void terminal::printInput()
 }
 
 
-void terminal::printInfo()
+void terminal::printCommandArray()
 {
   for (int i = 0; i < (sizeof(commandArray) / sizeof(commandType)); i++)
   {
@@ -188,7 +190,8 @@ void terminal::printInfo()
 */
 
 //==============================================================================
-// Command functions
+//== Command functions
+
 void terminal::store (char** args)
 {
   //  Serial.println("in store function");
@@ -196,7 +199,9 @@ void terminal::store (char** args)
   if (fat::addFile(args[0], size, args[1]))
   {
     Serial.print("stored: ");
-    Serial.println(args[0]);
+    Serial.print(args[0]);
+    Serial.print("with data: ");
+    Serial.println(args[1]);
   }
   else
   {
@@ -217,8 +222,8 @@ void terminal::erase(char** args)
 {
   if (fat::deleteFile(args[0]))
   {
-    Serial.print("deleted file: ");
-    Serial.println(args[0]);
+    Serial.print(args[0]);
+    Serial.println(" succesfully deleted");
   }
   else {
     Serial.println("file nog found");
@@ -235,7 +240,7 @@ void terminal::files(char** args)
 void terminal::freespace(char** args)
 {
   int freeSpace = fat::freespace();
-  if(freeSpace == 0 || freeSpace == -1)
+  if (freeSpace == 0 || freeSpace == -1)
   {
     Serial.print("No free space available");
     return;

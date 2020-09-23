@@ -15,14 +15,14 @@ class terminal
     void execTerminal();
 
   private:
-    char** curArgs = new char*[MAX_COMMAND_ARGS]; // Arguments buffer
-    char* curCommandBuf = new char[MAX_COMMAND_SIZE];      // Command buffer
+    char** curArgs = new char*[MAX_COMMAND_ARGS];         // Arguments buffer
+    char* curCommandBuf = new char[MAX_COMMAND_SIZE];     // Command buffer
 
     // Variables
     bool incomingData = false;
-    bool firstCommand = false;
+    bool firstCommandSet = false;
     bool knownCmd = false;
-    int curArgIter = 0;         //Arguments counter
+    int curArgIter = 0;         //Current Arguments counter
 
     // Command line functions
     int scanBuffer();
@@ -35,7 +35,7 @@ class terminal
 
     void createFAT(char** args);
     void printInput();
-    void printInfo();
+    void printCommandArray();
     void reset();
 
     // Command functions
