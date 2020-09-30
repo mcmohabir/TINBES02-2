@@ -200,8 +200,9 @@ int fat::freespace()
   if (noOfFiles == 0) return (MAX_ARG_SIZE * FAT_SIZE);
 
   int firstWritablePos = START + sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE);
-  int unusedSpace = EEPROM.length() - (firstWritablePos - (MAX_ARG_SIZE * FAT_SIZE));
-  
+  int unusedSpace = EEPROM.length() - (firstWritablePos + (MAX_ARG_SIZE * FAT_SIZE)); 
+  Serial.println(unusedSpace);
+
   int startPosSpace = firstWritablePos;
   int largestFreeSpace = 0;
   int endPosSpace = 0;
@@ -210,17 +211,32 @@ int fat::freespace()
   for (byte i = 0; i < FAT_SIZE; i++)
   {
     eepromfile file = readFATEntry(i);
-    if (file.length <= 0) continue;
-    
-    if (i == (EEPROM.length() - unusedSpace))
+    if (i != (FAT_SIZE - 1) && file.length <= 0) continue;
+//    Serial.print("i: ");
+//    Serial.println(i);
+//    Serial.print("startPosSpace: ");
+//    Serial.println(startPosSpace);
+//    Serial.print("largestFreeSpace: ");
+//    Serial.println(largestFreeSpace);
+
+    // If no last file, space ends at end of useable FAT
+    if (i == (FAT_SIZE - 1))
     {
       endPosSpace = EEPROM.length() - unusedSpace;
+    }
+    else if (i == 0)
+    {
+      endPosSpace = startPosSpace;
     }
     else {
       endPosSpace = file.beginPos - 1;
     }
-
+    
+//    Serial.print("endPosSpace: ");
+//    Serial.println(endPosSpace);
     space = endPosSpace - startPosSpace;
+//    Serial.print("space: ");
+//    Serial.println(space);
     if (space > largestFreeSpace)
     {
       largestFreeSpace = space;
