@@ -1,4 +1,6 @@
 #include "terminal.h"
+memory memory;
+
 
 // Commands struct array
 
@@ -13,7 +15,9 @@ terminal::commandType terminal::commandArray[] = {
   {"list",        &terminal::list,        0},
   {"suspend",     &terminal::suspend,     1},
   {"resume",      &terminal::resume,      1},
-  {"kill",        &terminal::kill,        1}
+  {"kill",        &terminal::kill,        1},
+  {"getmem",      &terminal::getMem,      0},
+  {"storemem",    &terminal::storeMem,    2}
 };
 
 //==============================================================================
@@ -29,6 +33,7 @@ terminal::terminal()
   }
 
   fat::initFAT();
+
 }
 
 
@@ -278,4 +283,14 @@ void terminal::resume(char** args)
 void terminal::kill(char** args)
 {
   Serial.println("in kill function");
+}
+
+void terminal::getMem(char** args)
+{
+  memory.printMemory();
+}
+
+void terminal::storeMem(char** args)
+{
+  memory.storeEntry(args[0], args[1]);
 }

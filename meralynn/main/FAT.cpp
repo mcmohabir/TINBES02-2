@@ -212,12 +212,6 @@ int fat::freespace()
   {
     eepromfile file = readFATEntry(i);
     if (i != (FAT_SIZE - 1) && file.length <= 0) continue;
-//    Serial.print("i: ");
-//    Serial.println(i);
-//    Serial.print("startPosSpace: ");
-//    Serial.println(startPosSpace);
-//    Serial.print("largestFreeSpace: ");
-//    Serial.println(largestFreeSpace);
 
     // If no last file, space ends at end of useable FAT
     if (i == (FAT_SIZE - 1))
@@ -231,12 +225,8 @@ int fat::freespace()
     else {
       endPosSpace = file.beginPos - 1;
     }
-    
-//    Serial.print("endPosSpace: ");
-//    Serial.println(endPosSpace);
+
     space = endPosSpace - startPosSpace;
-//    Serial.print("space: ");
-//    Serial.println(space);
     if (space > largestFreeSpace)
     {
       largestFreeSpace = space;

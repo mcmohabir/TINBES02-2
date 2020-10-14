@@ -1,9 +1,10 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#pragma once 
+#pragma once
 #include "Arduino.h"
 #include "FAT.h"
+#include "memory.h"
 
 #define MAX_COMMAND_ARGS 3
 
@@ -50,16 +51,17 @@ class terminal
     void resume(char** args);
     void kill(char** args);
     void fatsize(char** args);
-
+    void getMem(char** args);
+    void storeMem(char** args);
 
     typedef void (terminal::*commandFunction)(char** args);
-    
+
     typedef struct {
       char name[MAX_COMMAND_SIZE];
       terminal::commandFunction func;
       byte amountArgs;
     } commandType;
-    
+
     static commandType commandArray[];
 
 };
