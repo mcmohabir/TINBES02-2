@@ -3,6 +3,8 @@
 
 #pragma once
 #include "Arduino.h"
+#include "stack.h"
+
 
 #define TABLE_SIZE 25
 #define MEM_SIZE 256
@@ -10,25 +12,29 @@
 class memory
 {
   public:
-    int storeEntry(byte name, int processID);
+    bool initMemory();
+    bool storeEntry(byte name, int processID);
     bool printMemory();
-    
+
   private:
-    int noOfVars;
+    int noOfVars = 0;
 
     typedef struct {
-      char name;
+      byte name;
       char type;
       byte address;
       byte size;
-      unsigned int processID;
+      int processID;
     } memVar;
 
-     memVar memTable[TABLE_SIZE];
+    memVar memTable[TABLE_SIZE];
 
 
-    int existsInMemory(byte name, int processID);
+    int existsInMemory(byte name,  int processID);
     bool deleteEntry(byte index);
+    bool pushToStack(byte name, int processID);
+    //    popFromStack();
+
 };
 
 #endif

@@ -33,6 +33,7 @@ terminal::terminal()
   }
 
   fat::initFAT();
+  memory.initMemory();
 
 }
 
@@ -94,7 +95,7 @@ void terminal::assignCommand(char** args)
 {
   // No input to process
   if (!incomingData)
-    return false;
+    return;
 
   for (int i = 0; i < (sizeof(commandArray) / sizeof(commandType)); i++)
   {
@@ -292,5 +293,5 @@ void terminal::getMem(char** args)
 
 void terminal::storeMem(char** args)
 {
-  memory.storeEntry(args[0], args[1]);
+  memory.storeEntry(args[0][0], atoi(args[1]));
 }

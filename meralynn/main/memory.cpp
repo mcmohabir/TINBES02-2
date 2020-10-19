@@ -1,13 +1,25 @@
 #include "memory.h"
 
 
+stack stack;
+
+
+bool memory::initMemory()
+{
+  /*
+    memTable[0].name = "a";
+    memTable[0].processID = 1;
+  */
+}
+
+
 bool memory::printMemory()
 {
   for (byte i = 0; i < TABLE_SIZE; i++)
   {
     Serial.print(i);
     Serial.print(": ");
-    Serial.print(memTable[i].name);
+    Serial.print(char(memTable[i].name));
     Serial.print(", ");
     Serial.println(memTable[i].processID);
   }
@@ -15,19 +27,26 @@ bool memory::printMemory()
 }
 
 
-int memory::storeEntry(byte name, int processID) {
+bool memory::storeEntry(byte name, int processID) {
 
   if (noOfVars >= TABLE_SIZE)
-    return -1;
+    return false;
 
   int inMemory = existsInMemory(name, processID);
-  if (inMemory > -1)
+  if (inMemory != -1)
     deleteEntry(inMemory);
 
-  memTable[noOfVars].name = name;
-  memTable[noOfVars].processID = processID;
+  memVar memEntry;
+  memEntry.name = name;
+  memEntry.processID = processID;
+  memEntry.type = stack.popByte();
+//  memEntry.address = 
+//  memEntry.size = 
 
-  return 1;
+  memTable[noOfVars] = memEntry;
+  ++noOfVars;
+
+  return true;
 
 }
 
