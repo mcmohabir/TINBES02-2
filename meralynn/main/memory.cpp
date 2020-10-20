@@ -11,20 +11,6 @@ bool memory::initMemory()
 }
 
 
-bool memory::printMemTable()
-{
-  for (byte i = 0; i < TABLE_SIZE; i++)
-  {
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.print(char(memTable[i].name));
-    Serial.print(", ");
-    Serial.println(memTable[i].processID);
-  }
-  return true;
-}
-
-
 bool memory::storeEntry(byte name, int processID) {
 
   if (noOfVars >= TABLE_SIZE)
@@ -37,16 +23,25 @@ bool memory::storeEntry(byte name, int processID) {
   char type = stack.popByte(); // Type next on stack
   int size = getSize(type);
 
+  int address = getStartPos(size);
+
   memVar memEntry;
   memEntry.name = name;
   memEntry.processID = processID;
   memEntry.type = type;
-  //  memEntry.address =
+  memEntry.address = address;
   memEntry.size = size;
 
   memTable[noOfVars] = memEntry;
-  ++noOfVars;
 
+  for (int i = (memTable[noOfVars].size - 1); i >= 0; i--)
+  {
+    byte data = stack.popByte();
+    memory[memTable[noOfVars].address + i] = data;
+    Serial.println(data);
+  }
+
+  ++noOfVars;
   return true;
 }
 
@@ -105,27 +100,26 @@ int memory::getStartPos(int size)
 
   bool firstAddr = true;
 
-  for (byte i = 0; i < TABLE_SIZE; i++)
+  for (byte i = 0; i < noOfVars; i++)
   {
     memVar elem = memTable[i];
-
-    if (elem.size <= 0) break;
 
     if (firstAddr && size < elem.address)
       return firstFreeAddr;
 
-    if (size < getNextStartPos(i) - (elem.address + elem.size))
+    // Space found
+    if (size < (getNextStartPos(i) - (elem.address + elem.size)))
       return elem.address + elem.size;
 
     firstAddr = false;
   }
-  
+
 }
 
 
-int memory::getNextStartPos(int i)
+int memory::getNextStartPos(int index)
 {
-  for (byte n = i + 1; n < TABLE_SIZE; n++)
+  for (byte n = index + 1; n < TABLE_SIZE; n++)
   {
     memVar elem = memTable[n];
 
@@ -134,4 +128,69 @@ int memory::getNextStartPos(int i)
   }
 
   return MEM_SIZE; // End of memory
+}
+
+
+bool memory::printMemTable()
+{
+  for (byte i = 0; i < TABLE_SIZE; i++)
+  {
+    if (memTable[i].name == NULL)
+      break;
+
+    Serial.print(i);
+    Serial.print(", name: ");
+    Serial.print(memTable[i].name);
+    Serial.print(", p-id: ");
+    Serial.print(memTable[i].processID);
+    Serial.print(", addr: ");
+    Serial.print(memTable[i].address);
+    Serial.print(", size: ");
+    Serial.print(memTable[i].size);
+    Serial.print(", type: ");
+    Serial.print(memTable[i].type);
+    Serial.print(", data: ");
+
+    switch (memTable[i].type) {
+      case 'I':
+        Serial.print(int(word(memory[memTable[i].address],
+                              memory[memTable[i].address + 1])));
+        break;
+
+      case 'C':
+        Serial.print(char(memory[memTable[i].address]));
+        break;
+
+      case 'S':
+        char string[memTable[i].size + 1];
+        for (int x = 0; x < memTable[i].size; x++)
+          string[x] = char(memory[memTable[i].address + x]);
+        Serial.print(string);
+        break;
+
+      case 'F':
+        float f = 0.0;
+        byte* b = (byte*) &f;
+        for (int x = 0; x < 4; x++)
+        {
+          Serial.println(memory[memTable[i].address + x]);
+          b[x] = memory[memTable[i].address + x];
+        }
+        Serial.print(f);
+        break;
+    }
+    Serial.println();
+  }
+  return true;
+}
+
+
+bool memory::clearVars(int processID)
+{
+  for (byte i = 0; i < noOfVars; i--)
+    if (memTable[i].processID == processID)
+    {
+      deleteEntry(i);
+      i--;
+    }
 }

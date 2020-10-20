@@ -33,9 +33,10 @@ class memory
     int existsInMemory(byte name,  int processID);
     bool deleteEntry(byte index);
     bool pushToStack(byte name, int processID);
+    bool clearVars(int processID);
     int getSize(char type);
     int getStartPos(int size);
-    int getNextStartPos(int i);
+    int getNextStartPos(int index);
 
 };
 

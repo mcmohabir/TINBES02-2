@@ -16,17 +16,20 @@ class stack
   private:
     byte stack[STACKSIZE];
     byte sp = 0;
+    bool peeked = false;
     
     bool pushChar(char elem);
     bool pushInt(int elem);
     bool pushFloat(float elem);
-    bool pushString(char elem);
+    bool pushString(char* elem);
 
     char popChar();
     int popInt();
     float popFloat();
-    char popString();
+    char* popString();
 
+    float popVal();
+    float peek();
 };
 
 #endif
