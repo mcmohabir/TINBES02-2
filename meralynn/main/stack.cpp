@@ -1,45 +1,55 @@
 #include "stack.h"
 
-byte Stack[STACKSIZE];
-byte sp = 0;
+stack::stack()
+{
+
+}
 
 
-bool pushByte(byte elem) {
+bool stack::pushByte(byte elem) {
   if (sp >= STACKSIZE)
     return false;
 
-  Stack[sp++] = elem;
+  stack[sp++] = elem;
   return true;
 }
 
 
-byte popByte() {
+byte stack::popByte() {
   if (sp > 0)
-    return Stack[sp--];
+    return stack[sp--];
 
   return NULL;
 }
 
 
-bool pushInt(int elem)
+bool stack::pushInt(int elem)
 {
-  char type = "INT";
+  if (sp <= 0)
+    return false;
+
+  char type = 'I';
 
   pushByte(lowByte(elem));
   pushByte(highByte(elem));
   pushByte(type);
+
+  return true;
 }
 
 
-bool pushFloat(float elem)
+bool stack::pushFloat(float elem)
 {
-  char type = "FLOAT";
-  byte *b = (byte *)&elem;
+  if (sp <= 0)
+    return false;
+
+  char type = 'F';
+  byte *b = (byte *)&elem;    //float seperated into 4 bytes
 
   for (int i = 4; i > 0; i--)
-  {
     pushByte(b[i - 1]);
-  }
 
   pushByte(type);
+
+  return true;
 }

@@ -13,27 +13,29 @@ class memory
 {
   public:
     bool initMemory();
+    bool printMemTable();
     bool storeEntry(byte name, int processID);
-    bool printMemory();
 
   private:
     int noOfVars = 0;
 
     typedef struct {
       byte name;
+      int processID;
       char type;
       byte address;
       byte size;
-      int processID;
     } memVar;
 
     memVar memTable[TABLE_SIZE];
-
+    byte memory[MEM_SIZE];
 
     int existsInMemory(byte name,  int processID);
     bool deleteEntry(byte index);
     bool pushToStack(byte name, int processID);
-    //    popFromStack();
+    int getSize(char type);
+    int getStartPos(int size);
+    int getNextStartPos(int i);
 
 };
 

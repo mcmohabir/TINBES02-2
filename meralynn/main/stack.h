@@ -8,11 +8,15 @@
 class stack
 {
   public:
+    stack();
     bool pushByte(byte elem);
     byte popByte();
 
 
   private:
+    byte stack[STACKSIZE];
+    byte sp = 0;
+    
     bool pushChar(char elem);
     bool pushInt(int elem);
     bool pushFloat(float elem);

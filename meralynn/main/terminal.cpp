@@ -41,11 +41,11 @@ terminal::terminal()
 void terminal::execTerminal()
 {
   int commandEntered = scanBuffer();
-  if (commandEntered == 0) return false;
+  if (commandEntered == 0)
+    return;
 
   assignCommand(curArgs);
   //  reset();
-
 }
 
 
@@ -288,7 +288,7 @@ void terminal::kill(char** args)
 
 void terminal::getMem(char** args)
 {
-  memory.printMemory();
+  memory.printMemTable();
 }
 
 void terminal::storeMem(char** args)
