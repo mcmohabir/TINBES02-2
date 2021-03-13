@@ -1,6 +1,6 @@
 #include "terminal.h"
 memory memory;
-
+process process;
 
 // Commands struct array
 
@@ -259,7 +259,9 @@ void terminal::freespace(char** args)
 
 void terminal::run(char** args)
 {
+  process.startProcess(args);
   Serial.println("in run function");
+  
 }
 
 

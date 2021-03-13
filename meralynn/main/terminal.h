@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include "FAT.h"
 #include "memory.h"
+#include "process.h"
 
 #define MAX_COMMAND_ARGS 3
 
