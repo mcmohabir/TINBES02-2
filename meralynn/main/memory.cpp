@@ -139,17 +139,17 @@ bool memory::printMemTable()
       break;
 
     Serial.print(i);
-    Serial.print(", name: ");
+    Serial.print(F(", name: "));
     Serial.print(memTable[i].name);
-    Serial.print(", p-id: ");
+    Serial.print(F(", p-id: "));
     Serial.print(memTable[i].processID);
-    Serial.print(", addr: ");
+    Serial.print(F(", addr: "));
     Serial.print(memTable[i].address);
-    Serial.print(", size: ");
+    Serial.print(F(", size: "));
     Serial.print(memTable[i].size);
-    Serial.print(", type: ");
+    Serial.print(F(", type: "));
     Serial.print(memTable[i].type);
-    Serial.print(", data: ");
+    Serial.print(F(", data: "));
 
     switch (memTable[i].type) {
       case 'I':

@@ -7,7 +7,7 @@ EERef fat::noOfFiles = EEPROM[0];
 
 bool fat::initFAT()
 {
-  Serial.println("initFAT: initializing...");
+  // Serial.println(F("initFAT: initializing..."));
 
   noOfFiles = 0;
   //  Serial.print("initFAT: noOfFiles: ");
@@ -26,7 +26,7 @@ bool fat::initFAT()
     writeFATEntry(i, emptyFile);
   }
 
-  Serial.println("initFAT: completed");
+  // Serial.println(F("initFAT: completed"));
   return true;
 }
 
@@ -37,20 +37,20 @@ bool fat::addFile(char* name, int size, char* data)
 {
   if (noOfFiles >= FAT_SIZE)
   {
-    Serial.println("FAT full");
+    Serial.println(F("FAT full"));
     return false;
   }
 
   if (existsInFAT(name) != -1)
   {
-    Serial.println("Filename exists in FAT");
+    Serial.println(F("Filename exists in FAT"));
     return false;
   }
 
   int startPos = getStartPos(size);
   if (startPos == -1)
   {
-    Serial.println("Not enough space available");
+    Serial.println(F("Not enough space available"));
     return false;
   }
   eepromfile storeFile = (eepromfile) {
@@ -200,7 +200,7 @@ int fat::freespace()
   if (noOfFiles == 0) return (MAX_ARG_SIZE * FAT_SIZE);
 
   int firstWritablePos = START + sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE);
-  int unusedSpace = EEPROM.length() - (firstWritablePos + (MAX_ARG_SIZE * FAT_SIZE)); 
+  int unusedSpace = EEPROM.length() - (firstWritablePos + (MAX_ARG_SIZE * FAT_SIZE));
   Serial.println(unusedSpace);
 
   int startPosSpace = firstWritablePos;
@@ -270,22 +270,22 @@ bool fat::listFiles()
     if (file.length > 0) // Only print files that contain data
     {
       fileExists = true;
-      Serial.print("file: ");
+      Serial.print(F("file: "));
       Serial.print(i);                                  // File index from FAT
-      Serial.print("\t- ");
+      Serial.print(F("\t- "));
       Serial.print(file.name);                    // Filename
-      Serial.print("\t\t");
+      Serial.print(F("\t\t"));
       Serial.print(file.beginPos);               // Start byte on disk
-      Serial.print("/");
+      Serial.print(F("/"));
       Serial.print(file.beginPos + file.length);  // End byte on disk
-      Serial.print("\t(");
+      Serial.print(F("\t("));
       Serial.print(file.length);                  // Filesize
-      Serial.println(" bytes)");
+      Serial.println(F(" bytes)"));
     }
   }
 
   if (!fileExists)
-    Serial.println("No files in FAT");
+    Serial.println(F("No files in FAT"));
 
   return true;
 }

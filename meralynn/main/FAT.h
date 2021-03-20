@@ -17,8 +17,11 @@ class fat
     static char* readFile(char* name);
     static bool addFile(char* name, int size, char* data);
     static bool deleteFile(char* name);
+	static int existsInFAT(char* filename);
+	static int getStartPos(int size);
     static bool listFiles();
     static int freespace();
+
   private:
 
     typedef struct {
@@ -33,8 +36,8 @@ class fat
     static bool writeData(int startPos, int size, char* data);
     static int firstEmptyFile();
     static int getNextFileStartPos(int i);
-    static int getStartPos(int size);
-    static int existsInFAT(char* filename);
+
+
 
 
 

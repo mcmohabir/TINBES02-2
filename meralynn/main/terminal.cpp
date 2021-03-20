@@ -2,6 +2,7 @@
 memory memory;
 process process;
 
+#define DEBUG
 // Commands struct array
 
 terminal::commandType terminal::commandArray[] = {
@@ -17,7 +18,10 @@ terminal::commandType terminal::commandArray[] = {
   {"resume",      &terminal::resume,      1},
   {"kill",        &terminal::kill,        1},
   {"getmem",      &terminal::getMem,      0},
-  {"storemem",    &terminal::storeMem,    2}
+  {"storemem",    &terminal::storeMem,    2},
+  #ifdef DEBUG
+	{"test", &terminal::test, 0}
+  #endif
 };
 
 //==============================================================================
@@ -34,7 +38,8 @@ terminal::terminal()
 
   fat::initFAT();
   memory.initMemory();
-
+  // process.process();
+	Serial.println("Initialization completed");
 }
 
 
@@ -165,11 +170,11 @@ void terminal::printInput()
   //  if (!incomingData)
   //    return;
 
-  Serial.print("$ ");
+  Serial.print(F("$ "));
   Serial.print(curCommandBuf);
   for (byte i = 0; i < sizeof(curArgs) + 1; i++)
   {
-    Serial.print(" ");
+    Serial.print(F(" "));
     Serial.print(curArgs[i]);
   }
   Serial.println();
@@ -183,7 +188,7 @@ void terminal::printCommandArray()
     Serial.println(commandArray[i].name);
   }
 
-  Serial.print("\n");
+  Serial.print(F("\n"));
 }
 
 //==============================================================================
@@ -198,20 +203,27 @@ void terminal::printCommandArray()
 //==============================================================================
 //== Command functions
 
+#ifdef DEBUG
+void terminal::test(char** args)
+{
+	process.processList();
+}
+#endif
+
 void terminal::store (char** args)
 {
   //  Serial.println("in store function");
   int size = strlen(args[1]) + 1;
   if (fat::addFile(args[0], size, args[1]))
   {
-    Serial.print("stored ");
+    Serial.print(F("stored "));
     Serial.print(args[0]);
-    Serial.print(" with data: ");
+    Serial.print(F(" with data: "));
     Serial.println(args[1]);
   }
   else
   {
-    Serial.println("failed store");
+    Serial.println(F("failed store"));
   }
 }
 
@@ -229,10 +241,10 @@ void terminal::erase(char** args)
   if (fat::deleteFile(args[0]))
   {
     Serial.print(args[0]);
-    Serial.println(" succesfully deleted");
+    Serial.println(F(" succesfully deleted"));
   }
   else {
-    Serial.println("file nog found");
+    Serial.println(F("file nog found"));
   }
 }
 
@@ -248,44 +260,50 @@ void terminal::freespace(char** args)
   int freeSpace = fat::freespace();
   if (freeSpace == 0 || freeSpace == -1)
   {
-    Serial.println("No free space available");
+    Serial.println(F("No free space available"));
     return;
   }
 
   Serial.print(freeSpace);
-  Serial.println(" bytes available");
+  Serial.println(F(" bytes available"));
 }
 
 
 void terminal::run(char** args)
 {
-  process.startProcess(args);
-  Serial.println("in run function");
-  
-}
+  process.startProcess(args[0]);
+  // Serial.println(F("in run function"));
 
+}
 
 void terminal::list(char** args)
 {
-  Serial.println("in list function");
+	process.processList();
 }
 
 
 void terminal::suspend(char** args)
 {
-  Serial.println("in suspend function");
+	int processID = atoi(args[0]);
+	int procIndex = process.processExists(processID);
+	if (procIndex == -1) {
+		Serial.println(F("Process does not exist"));
+		return;
+	}
+	if(!process.setState(processID, 'p'))
+		Serial.println(F("State has not changed"));
 }
 
 
 void terminal::resume(char** args)
 {
-  Serial.println("in resume function");
+  Serial.println(F("in resume function"));
 }
 
 
 void terminal::kill(char** args)
 {
-  Serial.println("in kill function");
+  Serial.println(F("in kill function"));
 }
 
 void terminal::getMem(char** args)

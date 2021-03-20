@@ -17,7 +17,7 @@ class stack
     byte stack[STACKSIZE];
     byte sp = 0;
     bool peeked = false;
-    
+
     bool pushChar(char elem);
     bool pushInt(int elem);
     bool pushFloat(float elem);

@@ -55,6 +55,8 @@ class terminal
     void getMem(char** args);
     void storeMem(char** args);
 
+	void test(char** args);
+
     typedef void (terminal::*commandFunction)(char** args);
 
     typedef struct {
