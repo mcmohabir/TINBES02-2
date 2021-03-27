@@ -216,14 +216,14 @@ void terminal::store (char** args)
   int size = strlen(args[1]) + 1;
   if (fat::addFile(args[0], size, args[1]))
   {
-    Serial.print(F("stored "));
+    Serial.print(F("Stored "));
     Serial.print(args[0]);
     Serial.print(F(" with data: "));
     Serial.println(args[1]);
   }
   else
   {
-    Serial.println(F("failed store"));
+    Serial.println(F("ERROR: failed store"));
   }
 }
 
@@ -244,7 +244,7 @@ void terminal::erase(char** args)
     Serial.println(F(" succesfully deleted"));
   }
   else {
-    Serial.println(F("file nog found"));
+    Serial.println(F("ERROR: file not found"));
   }
 }
 

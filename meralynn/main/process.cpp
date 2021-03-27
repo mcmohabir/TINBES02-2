@@ -10,14 +10,14 @@ bool process::startProcess(char* name)
 {
 	if(noOfProcesses >= MAX_PROCESSES)
 	{
-	  Serial.println(F("Processing table full"));
+	  Serial.println(F("ERROR: Processing table full"));
 	  return false;
 	}
 
 	int fileIndex = fat::existsInFAT(name);
 	if(fileIndex == -1)
 	{
-		Serial.println(F("File does not exist"));
+		Serial.println(F("ERROR: File does not exist"));
 		return false;
   	}
 

@@ -37,20 +37,20 @@ bool fat::addFile(char* name, int size, char* data)
 {
   if (noOfFiles >= FAT_SIZE)
   {
-    Serial.println(F("FAT full"));
+    Serial.println(F("ERROR: FAT full"));
     return false;
   }
 
   if (existsInFAT(name) != -1)
   {
-    Serial.println(F("Filename exists in FAT"));
+    Serial.println(F("ERROR: filename exists in FAT"));
     return false;
   }
 
   int startPos = getStartPos(size);
   if (startPos == -1)
   {
-    Serial.println(F("Not enough space available"));
+    Serial.println(F("ERROR: not enough space available"));
     return false;
   }
   eepromfile storeFile = (eepromfile) {
@@ -76,7 +76,7 @@ char* fat::readFile(char* name)
     return readData(file.beginPos, file.length);
   }
   else
-    return "no file found";
+    return "ERROR: no file found";
 }
 
 
