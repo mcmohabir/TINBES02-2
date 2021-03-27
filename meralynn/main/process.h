@@ -13,14 +13,13 @@ class process
     process();
 
   bool startProcess(char* name);
-  bool suspendProcess(int id);
+  bool changeProcessState(int id, char state);
   bool processList();
   int processExists(int id);
-	bool setState(int procID, char newState);
+  bool setState(int procID, char newState);
+
   private:
   int noOfProcesses;
-
-
 
   typedef struct {
     char name[MAX_NAME_SIZE];

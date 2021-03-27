@@ -285,13 +285,14 @@ void terminal::list(char** args)
 void terminal::suspend(char** args)
 {
 	int processID = atoi(args[0]);
-	process.suspendProcess(processID);
+	process.changeProcessState(processID, 'p');
 }
 
 
 void terminal::resume(char** args)
 {
-  Serial.println(F("in resume function"));
+  int processID = atoi(args[0]);
+  process.changeProcessState(processID, 'r');
 }
 
 

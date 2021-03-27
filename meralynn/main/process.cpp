@@ -36,19 +36,22 @@ bool process::startProcess(char* name)
 	return true;
 }
 
-bool process::suspendProcess(int id)
+bool process::changeProcessState(int id, char state)
 {
 	int processID = processExists(id);
 	if(processID == -1)
 	{
-		Serial.print(F("Process does not exist"));
+		Serial.print(F("ERROR: Process does not exist"));
 		return false;
 	}
 
-	bool stateChanged = setState(processID, 'p');
+	bool stateChanged = setState(processID, state);
 	if(!stateChanged)
 	{
-		Serial.println(F("State has not changed"));
+		Serial.print(F("ERROR: Process "));
+		Serial.print(id);
+		Serial.print(F(" already in state "));
+		Serial.println(state);
 		return false;
 	}
 
@@ -59,7 +62,7 @@ bool process::suspendProcess(int id)
 bool process::setState(int procID, char newState)
 {
 	proc process = procTable[procID];
-	if(process.state == newState || procID == -1)
+	if(process.state == newState)
 		return false;
 
 	process.state = newState;
