@@ -5,7 +5,7 @@ process::process()
   noOfProcesses = 0;
 }
 
-
+//==============================================================================
 bool process::startProcess(char* name)
 {
 	if(noOfProcesses >= MAX_PROCESSES)
@@ -36,42 +36,16 @@ bool process::startProcess(char* name)
 	return true;
 }
 
-
-bool process::setState(int procID, char state)
-{
-	proc process = procTable[procID];
-	if(process.state == state || procID == -1)
-		return false;
-
-	process.state == state;
-	procTable[procID] = process;
-	Serial.print(F("Changed state to: "));
-	Serial.println(process.state);
-	return true;
-}
-
-int process::processExists(int processID)
-{
-	for (byte i = 0; i < MAX_PROCESSES; i++)
-	{
-		proc process = procTable[i];
-		if (process.processID == processID)
-			return i;
-	}
-	return -1;
-}
-
 bool process::suspendProcess(int id)
 {
-	// int procID = processExists(id);
-	int procID = processExists(id);
-	if(procID == -1)
+	int processID = processExists(id);
+	if(processID == -1)
 	{
 		Serial.print(F("Process does not exist"));
 		return false;
 	}
 
-	bool stateChanged = setState(procID, 'p');
+	bool stateChanged = setState(processID, 'p');
 	if(!stateChanged)
 	{
 		Serial.println(F("State has not changed"));
@@ -79,6 +53,31 @@ bool process::suspendProcess(int id)
 	}
 
 	return true;
+}
+
+//==============================================================================
+bool process::setState(int procID, char newState)
+{
+	proc process = procTable[procID];
+	if(process.state == newState || procID == -1)
+		return false;
+
+	process.state = newState;
+	procTable[procID] = process;
+	Serial.print(F("Changed state to: "));
+	Serial.println(process.state);
+	return true;
+}
+
+int process::processExists(int id)
+{
+	for (byte i = 0; i < MAX_PROCESSES; i++)
+	{
+		proc process = procTable[i];
+		if (process.processID == id)
+			return i;
+	}
+	return -1;
 }
 
 

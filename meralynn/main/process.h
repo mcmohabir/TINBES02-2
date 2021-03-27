@@ -15,8 +15,8 @@ class process
   bool startProcess(char* name);
   bool suspendProcess(int id);
   bool processList();
-  int processExists(int processID);
-	bool setState(int procID, char state);
+  int processExists(int id);
+	bool setState(int procID, char newState);
   private:
   int noOfProcesses;
 

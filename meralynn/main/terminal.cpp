@@ -285,13 +285,7 @@ void terminal::list(char** args)
 void terminal::suspend(char** args)
 {
 	int processID = atoi(args[0]);
-	int procIndex = process.processExists(processID);
-	if (procIndex == -1) {
-		Serial.println(F("Process does not exist"));
-		return;
-	}
-	if(!process.setState(processID, 'p'))
-		Serial.println(F("State has not changed"));
+	process.suspendProcess(processID);
 }
 
 
