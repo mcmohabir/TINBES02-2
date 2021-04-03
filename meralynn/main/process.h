@@ -17,6 +17,7 @@ class process
   bool processList();
   int processExists(int id);
   bool setState(int procID, char newState);
+  bool killProcess(int procID);
 
   private:
   int noOfProcesses;

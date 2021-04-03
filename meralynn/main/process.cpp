@@ -1,5 +1,7 @@
-#include "process.h"
 
+#include "process.h"
+#include "memory.h"
+memory memory;
 process::process()
 {
   noOfProcesses = 0;
@@ -45,6 +47,21 @@ bool process::changeProcessState(int id, char state)
 		return false;
 	}
 
+	if(state == 't')
+	{
+		bool killed = killProcess(id);
+		if(killed)
+		{
+			Serial.print(F("Process "));
+			Serial.print(id);
+			Serial.println(F(" succesfully terminated"));
+			return true;
+		}
+		Serial.print(F("ERROR: Failed to terminate process"));
+		Serial.println(id);
+		return false;
+	}
+
 	bool stateChanged = setState(processID, state);
 	if(!stateChanged)
 	{
@@ -65,12 +82,32 @@ bool process::setState(int procID, char newState)
 	if(process.state == newState)
 		return false;
 
+
 	process.state = newState;
 	procTable[procID] = process;
 	Serial.print(F("Changed state to: "));
 	Serial.println(process.state);
 	return true;
 }
+
+bool process::killProcess(int procID)
+{
+	proc process = procTable[procID];
+	strcpy(process.name, '\0');
+	// process.name = NULL;
+	process.state = '\0';
+	process.processID = NULL;
+	process.procCtr = NULL;
+	process.filePtr = NULL;
+	process.stackPtr = NULL;
+	process.address = NULL;
+	procTable[noOfProcesses] = process;
+	noOfProcesses--;
+	memory.clearVars(procID);
+	return true;
+
+}
+
 
 int process::processExists(int id)
 {
@@ -95,6 +132,8 @@ bool process::processList()
 			Serial.print(process.processID);
 			Serial.print(F(" - "));
 			Serial.print(process.state);
+			Serial.print(F(" - "));
+			Serial.print(process.procCtr);
 			Serial.print(F(" - "));
 			Serial.println(process.name);
 		}

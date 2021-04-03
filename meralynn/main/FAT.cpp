@@ -47,7 +47,7 @@ bool fat::addFile(char* name, int size, char* data)
     return false;
   }
 
-  int startPos = getStartPos(size);
+  int startPos = getFreeStartPos(size);
   if (startPos == -1)
   {
     Serial.println(F("ERROR: not enough space available"));
@@ -155,9 +155,13 @@ int fat::getNextFileStartPos(int i)
   return (EEPROM.length() + 1);
 
 }
-
+int fat::getStartPos(int index)
+{
+	eepromfile file = readFATEntry(index);
+	return file.beginPos;
+}
 // Get first available byte to store data
-int fat::getStartPos(int size)
+int fat::getFreeStartPos(int size)
 {
   // noOfFiles + FAT size + padding byte
   int firstFreePos = sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE) + 1;

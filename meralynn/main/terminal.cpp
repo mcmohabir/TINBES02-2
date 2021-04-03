@@ -272,8 +272,6 @@ void terminal::freespace(char** args)
 void terminal::run(char** args)
 {
   process.startProcess(args[0]);
-  // Serial.println(F("in run function"));
-
 }
 
 void terminal::list(char** args)
@@ -298,7 +296,9 @@ void terminal::resume(char** args)
 
 void terminal::kill(char** args)
 {
-  Serial.println(F("in kill function"));
+	int processID = atoi(args[0]);
+	process.changeProcessState(processID, 't');
+  // Serial.println(F("in kill function"));
 }
 
 void terminal::getMem(char** args)
