@@ -7,6 +7,19 @@ process::process()
   noOfProcesses = 0;
 }
 
+void process::runPrograms()
+{
+	int nrOfRunningProcesses = 0;
+	for (byte i = 0; i < MAX_PROCESSES; i++)
+	{
+		if (procTable[i].state == 'r')
+			nrOfRunningProcesses++;
+		if(procTable[i].state == 't')
+			killProcess(i);
+	}
+	if(nrOfRunningProcesses == 0)
+		return 0;
+}
 //==============================================================================
 bool process::startProcess(char* name)
 {
@@ -23,14 +36,25 @@ bool process::startProcess(char* name)
 		return false;
   	}
 
+	int id;
+   	for (byte i = 0; i < MAX_PROCESSES; i++)
+	{
+	   if (procTable[i].state == '\0')
+	   {
+		   id = i;
+		   break;
+	   }
+	}
+
 	proc process;
 	strcpy(process.name, name);
-	process.processID = noOfProcesses;
-	process.procCtr = fat::getStartPos(fileIndex);
-	process.stackPtr = 0;
+	process.processID = id;
 	process.state = 'r';
-	procTable[noOfProcesses] = process;
+	process.stackPtr = 0;
+	process.filePtr = 0;
+	process.procCtr = fat::getStartPos(fileIndex);
 
+	procTable[id] = process;
 	noOfProcesses++;
 
 	Serial.print(F("Started: "));
@@ -94,16 +118,15 @@ bool process::killProcess(int procID)
 {
 	proc process = procTable[procID];
 	strcpy(process.name, '\0');
-	// process.name = NULL;
 	process.state = '\0';
 	process.processID = NULL;
 	process.procCtr = NULL;
 	process.filePtr = NULL;
 	process.stackPtr = NULL;
 	process.address = NULL;
-	procTable[noOfProcesses] = process;
+	procTable[procID] = process;
 	noOfProcesses--;
-	memory.clearVars(procID);
+	// memory.clearVars(procID);
 	return true;
 
 }

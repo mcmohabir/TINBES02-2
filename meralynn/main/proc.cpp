@@ -2,15 +2,16 @@
 
 proc::proc()
 {
-  
+
 }
 
 void proc::run()
 {
   terminal terminal;
-  
+
   while(true)
   {
-    terminal.execTerminal();  
+    terminal.execTerminal();
+	terminal.execPrograms();
   }
 }

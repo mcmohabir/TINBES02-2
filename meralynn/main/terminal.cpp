@@ -1,8 +1,8 @@
 #include "terminal.h"
-memory memory;
+memory Memory;
 process process;
 
-#define DEBUG
+// #define DEBUG
 // Commands struct array
 
 terminal::commandType terminal::commandArray[] = {
@@ -37,7 +37,7 @@ terminal::terminal()
   }
 
   fat::initFAT();
-  memory.initMemory();
+  Memory.initMemory();
   // process.process();
 	Serial.println("Initialization completed");
 }
@@ -53,6 +53,10 @@ void terminal::execTerminal()
   //  reset();
 }
 
+void terminal::execPrograms()
+{
+	process.runPrograms();
+}
 
 //==============================================================================
 // Reset
@@ -298,15 +302,14 @@ void terminal::kill(char** args)
 {
 	int processID = atoi(args[0]);
 	process.changeProcessState(processID, 't');
-  // Serial.println(F("in kill function"));
 }
 
 void terminal::getMem(char** args)
 {
-  memory.printMemTable();
+  Memory.printMemTable();
 }
 
 void terminal::storeMem(char** args)
 {
-  memory.storeEntry(args[0][0], atoi(args[1]));
+  Memory.storeEntry(args[0][0], atoi(args[1]));
 }

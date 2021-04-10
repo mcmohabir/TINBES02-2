@@ -10,18 +10,19 @@
 class process
 {
   public:
-    process();
-
+  process();
+  void runPrograms();
   bool startProcess(char* name);
   bool changeProcessState(int id, char state);
   bool processList();
-  int processExists(int id);
-  bool setState(int procID, char newState);
-  bool killProcess(int procID);
+
 
   private:
   int noOfProcesses;
 
+  int processExists(int id);
+  bool setState(int procID, char newState);
+  bool killProcess(int procID);
   typedef struct {
     char name[MAX_NAME_SIZE];
     int processID;

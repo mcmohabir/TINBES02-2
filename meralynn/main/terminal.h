@@ -15,6 +15,7 @@ class terminal
   public:
     terminal();
     void execTerminal();
+	void execPrograms();
 
   private:
     char** curArgs = new char*[MAX_COMMAND_ARGS];         // Arguments buffer
