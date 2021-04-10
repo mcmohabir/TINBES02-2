@@ -1,7 +1,10 @@
 
 #include "process.h"
 #include "memory.h"
+#include "instruction.h"
 memory memory;
+instruction instruction;
+
 process::process()
 {
   noOfProcesses = 0;
@@ -18,7 +21,13 @@ void process::runPrograms()
 			killProcess(i);
 	}
 	if(nrOfRunningProcesses == 0)
-		return 0;
+		return;
+
+	for(byte i = 0; i < MAX_PROCESSES; i++)
+	{
+		if(procTable[i].state == 'r')
+			instruction.execute(i);
+	}
 }
 //==============================================================================
 bool process::startProcess(char* name)
@@ -137,7 +146,7 @@ int process::processExists(int id)
 	for (byte i = 0; i < MAX_PROCESSES; i++)
 	{
 		proc process = procTable[i];
-		if (process.processID == id)
+		if (process.processID == id && process.state != NULL)
 			return i;
 	}
 	return -1;

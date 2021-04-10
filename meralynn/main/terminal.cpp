@@ -38,7 +38,6 @@ terminal::terminal()
 
   fat::initFAT();
   Memory.initMemory();
-  // process.process();
 	Serial.println("Initialization completed");
 }
 

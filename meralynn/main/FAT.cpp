@@ -1,4 +1,5 @@
 #include "FAT.h"
+#define DEBUG
 
 EERef fat::noOfFiles = EEPROM[0];
 
@@ -7,26 +8,16 @@ EERef fat::noOfFiles = EEPROM[0];
 
 bool fat::initFAT()
 {
-  // Serial.println(F("initFAT: initializing..."));
-
   noOfFiles = 0;
-  //  Serial.print("initFAT: noOfFiles: ");
-  //  Serial.println(noOfFiles);
-  //
-  //  Serial.print("initFAT: last FAT byte: ");
-  //  Serial.println(sizeof(noOfFiles) + (sizeof(eepromfile) * FAT_SIZE));
 
   for (byte i = 0; i < FAT_SIZE; i++)
   {
-    //    Serial.print("initFAT: write empty file: ");
-    //    Serial.println(i);
     eepromfile emptyFile = (eepromfile) {
       "", 0, 0
     };
     writeFATEntry(i, emptyFile);
   }
 
-  // Serial.println(F("initFAT: completed"));
   return true;
 }
 

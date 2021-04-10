@@ -11,14 +11,14 @@ bool stack::pushByte(byte elem) {
   if (sp >= STACKSIZE)
     return false;
 
-  stack[sp++] = elem;
+  _stack[sp++] = elem;
   return true;
 }
 
 
 byte stack::popByte() {
   if (sp > 0)
-    return stack[sp--];
+    return _stack[sp--];
 
   return NULL;
 }

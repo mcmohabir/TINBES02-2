@@ -14,7 +14,7 @@ class stack
 
 
   private:
-    byte stack[STACKSIZE];
+    byte _stack[STACKSIZE];
     byte sp = 0;
     bool peeked = false;
 
