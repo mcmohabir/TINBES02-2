@@ -16,6 +16,16 @@ class process
   bool changeProcessState(int id, char state);
   bool processList();
 
+	typedef struct {
+	  char name[MAX_NAME_SIZE];
+	  int processID;
+	  char state;
+	  byte procCtr;
+	  byte filePtr;
+	  byte stackPtr;
+	  byte address;
+	}proc;
+proc procTable[MAX_PROCESSES];
 
   private:
   int noOfProcesses;
@@ -23,17 +33,8 @@ class process
   int processExists(int id);
   bool setState(int procID, char newState);
   bool killProcess(int procID);
-  typedef struct {
-    char name[MAX_NAME_SIZE];
-    int processID;
-    char state;
-    byte procCtr;
-    byte filePtr;
-    byte stackPtr;
-    byte address;
-  }proc;
 
-  proc procTable[MAX_PROCESSES];
+  
 
 
 };

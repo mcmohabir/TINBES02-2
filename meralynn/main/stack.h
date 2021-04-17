@@ -11,6 +11,7 @@ class stack
     stack();
     bool pushByte(byte elem);
     byte popByte();
+	int procID;
 
 
   private:

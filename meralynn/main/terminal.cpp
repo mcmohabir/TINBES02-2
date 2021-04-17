@@ -38,7 +38,7 @@ terminal::terminal()
 
   fat::initFAT();
   Memory.initMemory();
-	Serial.println("Initialization completed");
+	
 }
 
 

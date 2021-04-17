@@ -18,14 +18,25 @@ void process::runPrograms()
 		if (procTable[i].state == 'r')
 			nrOfRunningProcesses++;
 		if(procTable[i].state == 't')
-			killProcess(i);
+		{
+			bool killed = killProcess(i);
+			if(killed)
+			{
+				Serial.print(F("Process "));
+				Serial.print(i);
+				Serial.println(F(" succesfully terminated"));
+				break;
+			}
+			Serial.print(F("ERROR: Failed to terminate process"));
+			Serial.println(i);
+		}
 	}
 	if(nrOfRunningProcesses == 0)
 		return;
 
 	for(byte i = 0; i < MAX_PROCESSES; i++)
 	{
-		if(procTable[i].state == 'r')
+		if (procTable[i].state == 'r')
 			instruction.execute(i);
 	}
 }
@@ -80,20 +91,20 @@ bool process::changeProcessState(int id, char state)
 		return false;
 	}
 
-	if(state == 't')
-	{
-		bool killed = killProcess(id);
-		if(killed)
-		{
-			Serial.print(F("Process "));
-			Serial.print(id);
-			Serial.println(F(" succesfully terminated"));
-			return true;
-		}
-		Serial.print(F("ERROR: Failed to terminate process"));
-		Serial.println(id);
-		return false;
-	}
+	// if(state == 't')
+	// {
+	// 	bool killed = killProcess(id);
+	// 	if(killed)
+	// 	{
+	// 		Serial.print(F("Process "));
+	// 		Serial.print(id);
+	// 		Serial.println(F(" succesfully terminated"));
+	// 		return true;
+	// 	}
+	// 	Serial.print(F("ERROR: Failed to terminate process"));
+	// 	Serial.println(id);
+	// 	return false;
+	// }
 
 	bool stateChanged = setState(processID, state);
 	if(!stateChanged)

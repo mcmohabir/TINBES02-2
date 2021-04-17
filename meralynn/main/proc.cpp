@@ -14,4 +14,5 @@ void proc::run()
     terminal.execTerminal();
 	terminal.execPrograms();
   }
+  Serial.println("Initialization completed");
 }
