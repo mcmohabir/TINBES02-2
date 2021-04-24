@@ -9,10 +9,10 @@ void proc::run()
 {
   terminal terminal;
 
-  while(true)
+  while (true)
   {
     terminal.execTerminal();
-	terminal.execPrograms();
+    terminal.execPrograms();
   }
   Serial.println("Initialization completed");
 }

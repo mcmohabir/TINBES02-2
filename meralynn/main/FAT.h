@@ -17,9 +17,9 @@ class fat
     static char* readFile(char* name);
     static bool addFile(char* name, int size, char* data);
     static bool deleteFile(char* name);
-	static int existsInFAT(char* filename);
-	static int getStartPos(int index);
-	static int getFreeStartPos(int size);
+    static int existsInFAT(char* filename);
+    static int getStartPos(int index);
+    static int getFreeStartPos(int size);
     static bool listFiles();
     static int freespace();
 

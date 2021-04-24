@@ -17,11 +17,12 @@ terminal::commandType terminal::commandArray[] = {
   {"suspend",     &terminal::suspend,     1},
   {"resume",      &terminal::resume,      1},
   {"kill",        &terminal::kill,        1},
-  {"getmem",      &terminal::getMem,      0},
-  {"storemem",    &terminal::storeMem,    2},
-  #ifdef DEBUG
-	{"test", &terminal::test, 0}
-  #endif
+
+#ifdef DEBUG
+  {"test", &terminal::test, 0}
+  // {"getmem",      &terminal::getMem,      0},
+  // {"storemem",    &terminal::storeMem,    2},
+#endif
 };
 
 //==============================================================================
@@ -38,7 +39,7 @@ terminal::terminal()
 
   fat::initFAT();
   Memory.initMemory();
-	
+
 }
 
 
@@ -54,7 +55,7 @@ void terminal::execTerminal()
 
 void terminal::execPrograms()
 {
-	process.runPrograms();
+  process.runPrograms();
 }
 
 //==============================================================================
@@ -209,7 +210,7 @@ void terminal::printCommandArray()
 #ifdef DEBUG
 void terminal::test(char** args)
 {
-	process.processList();
+  process.processList();
 }
 #endif
 
@@ -279,14 +280,14 @@ void terminal::run(char** args)
 
 void terminal::list(char** args)
 {
-	process.processList();
+  process.processList();
 }
 
 
 void terminal::suspend(char** args)
 {
-	int processID = atoi(args[0]);
-	process.changeProcessState(processID, 'p');
+  int processID = atoi(args[0]);
+  process.changeProcessState(processID, 'p');
 }
 
 
@@ -299,16 +300,16 @@ void terminal::resume(char** args)
 
 void terminal::kill(char** args)
 {
-	int processID = atoi(args[0]);
-	process.changeProcessState(processID, 't');
+  int processID = atoi(args[0]);
+  process.changeProcessState(processID, 't');
 }
 
-void terminal::getMem(char** args)
-{
-  Memory.printMemTable();
-}
-
-void terminal::storeMem(char** args)
-{
-  Memory.storeEntry(args[0][0], atoi(args[1]));
-}
+// void terminal::getMem(char** args)
+// {
+//   Memory.printMemTable();
+// }
+//
+// void terminal::storeMem(char** args)
+// {
+//   Memory.storeEntry(args[0][0], atoi(args[1]));
+// }

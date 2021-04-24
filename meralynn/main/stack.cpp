@@ -1,83 +1,76 @@
 #include "stack.h"
 
-stack::stack()
-{
-	// procID = processIndex;
-}
-
 // ===============================================================
 // Byte
-bool stack::pushByte(byte elem) {
-  if (sp >= STACKSIZE)
-    return false;
-
-  _stack[sp++] = elem;
+bool stack::pushByte(_stack* stack, byte elem) {
+  stack->stack [(stack->sp)++] = elem;
   return true;
 }
 
 
-byte stack::popByte() {
-  if (sp > 0)
-    return _stack[sp--];
+byte stack::popByte(_stack* stack) {
 
-  return NULL;
+  // if(peek) return stack->stack[(stack->sp)-1];
+  return stack->stack [--(stack->sp)];
 }
 
 
 // ===============================================================
 // Char
-bool stack::pushChar(char elem)
+bool stack::pushChar(_stack* stack, char elem)
 {
-  pushByte(elem);
-  pushByte('C');
+  pushByte(stack, elem);
+  pushByte(stack, 'C');
   return true;
 }
 
-char stack::popChar()
+char stack::popChar(_stack* stack)
 {
-  return char(popByte());
+  popByte(stack);
+  return char(popByte(stack));
 }
 
 
 // ===============================================================
 // Int
-bool stack::pushInt(int elem)
+bool stack::pushInt(_stack* stack, int elem)
 {
-  pushByte(highByte(elem));
-  pushByte(lowByte(elem));
-  pushByte('I');
+  pushByte(stack, highByte(elem));
+  pushByte(stack, lowByte(elem));
+  pushByte(stack, 'I'); // veranderen naar datatype INT
   return true;
 }
 
-int stack::popInt()
+int stack::popInt(_stack* stack)
 {
-  byte low = popByte();
-  byte high = popByte();
-  int num = word(high, low);
-  return num;
+  popByte(stack);
+  byte low = popByte(stack);
+  byte high = popByte(stack);
+  return word(low, high);
 }
 
 
 // ===============================================================
 // Float
-bool stack::pushFloat(float elem)
+bool stack::pushFloat(_stack* stack, float elem)
 {
   byte *b = (byte *)&elem;    //float seperated into 4 bytes
 
   for (int i = 3; i >= 0; i--)
-    pushByte(b[i]);
+    pushByte(stack, b[i]);
 
-  pushByte('F');
+  pushByte(stack, 'F'); // Veranderen naar datatype
   return true;
 }
 
-float stack::popFloat()
+float stack::popFloat(_stack* stack)
 {
   float f = 0.0;
   byte *b = (byte *)&f;
 
-  for (int i = 3; i >= 0; i--)
-    b[i] = popByte();
+  popByte(stack);
+  for (int i = 0; i <= 3; i++)
+    b[i] = popByte(stack);
 
   return f;
 }
@@ -85,71 +78,71 @@ float stack::popFloat()
 
 // ===============================================================
 // String
-bool stack::pushString(char* elem)
+bool stack::pushString(_stack* stack, char* elem)
 {
   byte length = strlen(elem) + 1;
-  for (byte i = 0; i < length; i++)
-    pushByte(elem[i]);
+  for (byte i = length; i <= 0; i--)
+    pushByte(stack, elem[i]);
 
-  pushByte(length);
-  pushByte('S');
+  pushByte(stack, length);
+  pushByte(stack, 'S'); // Veranderen naar datatype
 }
 
-char* stack::popString()
+char* stack::popString(_stack* stack)
 {
-  byte length = popByte();
-  char s[length]; //+1 = terminating zero
-
-  for (int i = 0; i < length; i++)
-    s[i] = popByte();
+  popByte(stack);
+  byte length = popByte(stack);
+  // char s[length]; //+1 = terminating zero
+  stack->sp -= length;
+  return (stack->stack + stack->sp );
 }
 
 // ===============================================================
 // Helpers
-float stack::peek()
+float stack::peek(_stack* stack)
 {
   peeked = true;
-  return popVal();
+  return popVal(stack);
 }
 
 
-float stack::popVal()
+float stack::popVal(_stack* stack)
 {
-  byte type = popByte();
+  byte type = popByte(stack);
   switch (type)
   {
     case 'C':
-      char c = popChar();
+      char c = popChar(stack);
       if (peeked)
       {
-        pushChar(c);
+        pushChar(stack, c);
         peeked = false;
       }
       return (float) c;
 
     case 'I':
-      int i = popInt();
+      int i = popInt(stack);
       if (peeked)
       {
-        pushInt(i);
+        pushInt(stack, i);
         peeked = false;
       }
       return (float) i;
 
     case 'F':
-      float f = popFloat();
+      float f = popFloat(stack);
       if (peeked)
       {
-        pushFloat(f);
+        pushFloat(stack, f);
         peeked = false;
       }
       return (float) f;
 
     default:
-      byte b = popByte();
+      byte b = popByte(stack);
       if (peeked)
       {
-        pushByte(b);
+        pushByte(stack, b);
         peeked = false;
       }
       return (float) b;

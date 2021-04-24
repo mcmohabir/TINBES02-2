@@ -2,10 +2,10 @@
 
 bool instruction::execute(int id)
 {
-	Serial.print(F("Execute: "));
-	Serial.println(id);
+  Serial.print(F("Execute: "));
+  Serial.println(id);
 
-	// byte nextInstruction  = EEPROM[process::procTable[id].procCtr];
+  // byte nextInstruction  = EEPROM[process::procTable[id].procCtr];
 }
 
 

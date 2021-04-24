@@ -8,29 +8,34 @@
 class stack
 {
   public:
-    stack();
-    bool pushByte(byte elem);
-    byte popByte();
-	int procID;
+	  struct _stack {
+  	  byte stack[STACKSIZE];
+  	  uint_least8_t sp = 0;
+  	};
+	
+    bool pushByte(_stack* stack, byte elem);
+    byte popByte(_stack* stack);
+    int procID;
+
 
 
   private:
-    byte _stack[STACKSIZE];
-    byte sp = 0;
+
+
     bool peeked = false;
 
-    bool pushChar(char elem);
-    bool pushInt(int elem);
-    bool pushFloat(float elem);
-    bool pushString(char* elem);
+    bool pushChar(_stack* stack, char elem);
+    bool pushInt(_stack* stack, int elem);
+    bool pushFloat(_stack* stack, float elem);
+    bool pushString(_stack* stack, char* elem);
 
-    char popChar();
-    int popInt();
-    float popFloat();
-    char* popString();
+    char popChar(_stack* stack);
+    int popInt(_stack* stack);
+    float popFloat(_stack* stack);
+    char* popString(_stack* stack);
 
-    float popVal();
-    float peek();
+    float popVal(_stack* stack);
+    float peek(_stack* stack);
 };
 
 #endif

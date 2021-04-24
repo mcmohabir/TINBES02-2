@@ -15,7 +15,7 @@ class terminal
   public:
     terminal();
     void execTerminal();
-	void execPrograms();
+    void execPrograms();
 
   private:
     char** curArgs = new char*[MAX_COMMAND_ARGS];         // Arguments buffer
@@ -56,7 +56,7 @@ class terminal
     void getMem(char** args);
     void storeMem(char** args);
 
-	void test(char** args);
+    void test(char** args);
 
     typedef void (terminal::*commandFunction)(char** args);
 

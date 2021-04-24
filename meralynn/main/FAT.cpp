@@ -148,8 +148,8 @@ int fat::getNextFileStartPos(int i)
 }
 int fat::getStartPos(int index)
 {
-	eepromfile file = readFATEntry(index);
-	return file.beginPos;
+  eepromfile file = readFATEntry(index);
+  return file.beginPos;
 }
 // Get first available byte to store data
 int fat::getFreeStartPos(int size)

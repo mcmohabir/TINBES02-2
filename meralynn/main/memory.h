@@ -14,27 +14,26 @@ class memory
   public:
     bool initMemory();
     bool printMemTable();
-    bool storeEntry(byte name, int processID);
-
-  private:
-    int noOfVars = 0;
-
-    typedef struct {
+    bool storeEntry(byte name, int processID, stack::_stack* stack);
+	int getVar(byte name, int processID, stack::_stack* stack);
+	typedef struct {
       byte name;
       int processID;
       char type;
-      byte address;
-      byte size;
+      unsigned int address;
+      unsigned int size;
     } memVar;
+	memVar memTable[TABLE_SIZE];
+	byte memory[MEM_SIZE];
 
-    memVar memTable[TABLE_SIZE];
-    byte memory[MEM_SIZE];
+  private:
+    int noOfVars = 0;
 
     int existsInMemory(byte name,  int processID);
     bool deleteEntry(byte index);
     bool pushToStack(byte name, int processID);
     bool clearVars(int processID);
-    int getSize(char type);
+    int getSize(char type,stack::_stack* stack);
     int getStartPos(int size);
     int getNextStartPos(int index);
 

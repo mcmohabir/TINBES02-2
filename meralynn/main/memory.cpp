@@ -1,6 +1,6 @@
-	#include "memory.h"
+#include "memory.h"
 
-stack stack;
+stack Stack;
 
 bool memory::initMemory()
 {
@@ -11,7 +11,7 @@ bool memory::initMemory()
 }
 
 
-bool memory::storeEntry(byte name, int processID) {
+bool memory::storeEntry(byte name, int processID, stack::_stack* stack) {
 
   if (noOfVars >= TABLE_SIZE)
     return false;   // Memory full
@@ -20,8 +20,8 @@ bool memory::storeEntry(byte name, int processID) {
   if (inMemory != -1)
     deleteEntry(inMemory);
 
-  char type = stack.popByte(); // Type next on stack
-  int size = getSize(type);
+  char type = Stack.popByte(stack); // Type next on stack
+  int size = getSize(type, stack);
 
   int address = getStartPos(size);
 
@@ -36,7 +36,7 @@ bool memory::storeEntry(byte name, int processID) {
 
   for (int i = (memTable[noOfVars].size - 1); i >= 0; i--)
   {
-    byte data = stack.popByte();
+    byte data = Stack.popByte(stack);
     memory[memTable[noOfVars].address + i] = data;
     Serial.println(data);
   }
@@ -45,8 +45,24 @@ bool memory::storeEntry(byte name, int processID) {
   return true;
 }
 
+int memory::getVar(byte name, int processID, stack::_stack* stack)
+{
+	int index = existsInMemory(name, processID);
+	if(index < 0 || index > noOfVars)
+		return -1;
 
-int memory::getSize(char type)
+	for (int i = 0; i < memTable[index].size; i++)
+		Stack.pushByte(stack, memory[memTable[index].address + i]);
+
+	if(memTable[index].type == 'S')
+		Stack.pushByte(stack, memTable[index].size);
+
+	Stack.pushByte(stack, memTable[index].type);
+
+	return 1;
+
+}
+int memory::getSize(char type, stack::_stack* stack)
 {
   switch (type)
   {
@@ -57,7 +73,7 @@ int memory::getSize(char type)
     case 'C':
       return 1;
     case 'S':
-      return stack.popByte();   //size next on stack
+      return Stack.popByte(stack);   //size next on stack
   }
 }
 

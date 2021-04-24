@@ -7,10 +7,10 @@
 
 class instruction
 {
-	public:
-	static bool execute(int id);
-	static bool suspend(int id);
-	static bool kill(int id);
+  public:
+    static bool execute(int id);
+    static bool suspend(int id);
+    static bool kill(int id);
 };
 
 #endif
