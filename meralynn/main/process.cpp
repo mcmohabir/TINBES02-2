@@ -18,6 +18,12 @@ bool process::execute(int index)
 {
 	byte nextInstruction = EEPROM[procTable[index].procCtr++];
 
+	Serial.print(procTable[index].processID, DEC);
+    Serial.print(F(": "));
+    Serial.print(procTable[index].procCtr-1, DEC);
+    Serial.print(F(": "));
+    Serial.println(nextInstruction, DEC);
+
 	switch (nextInstruction)
     {
         // Datatpyes
@@ -213,8 +219,8 @@ bool process::setState(int procID, char newState)
 
   process.state = newState;
   procTable[procID] = process;
-  Serial.print(F("Changed state to: "));
-  Serial.println(process.state);
+  // Serial.print(F("Changed state to: "));
+  // Serial.println(process.state);
   return true;
 }
 

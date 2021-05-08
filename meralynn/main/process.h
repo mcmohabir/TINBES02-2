@@ -20,7 +20,7 @@ class process
       char name[MAX_NAME_SIZE];
       int processID;
       char state;
-      byte procCtr;
+      int procCtr;
       byte filePtr;
       // byte stackPtr;
 	  stack::_stack stack;

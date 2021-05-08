@@ -30,7 +30,7 @@ bool memory::storeEntry(byte name, int processID, stack::_stack* stack) {
   {
     byte data = Stack.popByte(stack);
     memory[memTable[noOfVars].address + i] = data;
-    Serial.println(data);
+    // Serial.println(data);
   }
 
   ++noOfVars;
@@ -46,7 +46,7 @@ int memory::getVar(byte name, int processID, stack::_stack* stack)
 	for (int i = 0; i < memTable[index].size; i++)
 		Stack.pushByte(stack, memory[memTable[index].address + i]);
 
-	if(memTable[index].type == 'S')
+	if(memTable[index].type == STRING)
 		Stack.pushByte(stack, memTable[index].size);
 
 	Stack.pushByte(stack, memTable[index].type);
@@ -102,40 +102,25 @@ bool memory::deleteEntry(byte index)
 
 int memory::getStartPos(int size)
 {
-  int firstFreeAddr = 0;
-  if (noOfVars == 0)
-    return firstFreeAddr;
+  if (noOfVars == 0 && size <= MEM_SIZE)
+        return 0; // Write to first address
 
-  bool firstAddr = true;
+    for (byte i = 0; i < noOfVars-1; i++)
+    {
+        // Check if there is enough space between variables
+        if (memTable[i+1].address - (memTable[i].address + memTable[i].size)
+        >= size)
+            return memTable[i].address + memTable[i].size;
+    }
 
-  for (byte i = 0; i < noOfVars; i++)
-  {
-    memVar elem = memTable[i];
+    // Check space after last variable
+    if (MEM_SIZE - (memTable[noOfVars-1].address + memTable[noOfVars-1].size)
+    >= size)
+        return memTable[noOfVars-1].address + memTable[noOfVars-1].size;
 
-    if (firstAddr && size < elem.address)
-      return firstFreeAddr;
-
-    // Space found
-    if (size < (getNextStartPos(i) - (elem.address + elem.size)))
-      return elem.address + elem.size;
-
-    firstAddr = false;
-  }
-
-}
+    return -1; // No space was found
 
 
-int memory::getNextStartPos(int index)
-{
-  for (byte n = index + 1; n < TABLE_SIZE; n++)
-  {
-    memVar elem = memTable[n];
-
-    if (elem.size > 0)
-      return elem.address;
-  }
-
-  return MEM_SIZE; // End of memory
 }
 
 

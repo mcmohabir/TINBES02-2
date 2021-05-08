@@ -23,16 +23,19 @@ void instruction::valToStack(process::proc* process, byte datatype)
 			for(uint_least8_t i = 0; i < datatype; i++)
 				stack.pushByte(&(process->stack), EEPROM[process->procCtr++]);
 		}
+		stack.pushByte(&(process->stack), datatype);
 }
 
 void instruction::unaryOp(process::proc* process, byte operation)
 {
+	// Serial.print("unop: ");
     // Peek type so we can push it correctly after a operation
     byte type = stack.popByte(&(process->stack));
 	stack.pushByte(&(process->stack), type);
-
+	// Serial.println(type);
     // Get the data as float from stack
     float value = stack.popVal(&(process->stack));
+	// Serial.println(value);
 
     switch (operation) // Perform operation on data as float
     {
@@ -107,7 +110,7 @@ void instruction::unaryOp(process::proc* process, byte operation)
 void instruction::print(process::proc* process, bool newline=false)
 {
     byte type = stack.popByte(&(process->stack)); // Peek datatype
-
+	stack.pushByte(&(process->stack), type);
     switch(type) // Print by popping the datatype
     {
         case (CHAR):

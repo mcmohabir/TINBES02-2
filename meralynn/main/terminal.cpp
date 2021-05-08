@@ -40,7 +40,7 @@ terminal::terminal()
     curArgs[i][0] = '\0';
   }
 
-  fat::initFAT();
+  // fat::initFAT();
 
 }
 

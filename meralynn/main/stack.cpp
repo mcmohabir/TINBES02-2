@@ -27,7 +27,7 @@ bool stack::pushChar(_stack* stack, char elem)
 char stack::popChar(_stack* stack)
 {
   popByte(stack);
-  return char(popByte(stack));
+  return (char)popByte(stack);
 }
 
 
@@ -44,8 +44,8 @@ bool stack::pushInt(_stack* stack, int elem)
 int stack::popInt(_stack* stack)
 {
   popByte(stack);
-  byte low = popByte(stack);
   byte high = popByte(stack);
+  byte low = popByte(stack);
   return word(low, high);
 }
 
@@ -109,43 +109,37 @@ float stack::peek(_stack* stack)
 float stack::popVal(_stack* stack)
 {
   byte type = popByte(stack);
+  pushByte(stack, type);
+  float f;
   switch (type)
   {
     case CHAR:
-      char c = popChar(stack);
+      f = (float)popChar(stack);
       if (peeked)
       {
-        pushChar(stack, c);
+       pushChar(stack, (char)f);
         peeked = false;
       }
-      return (float) c;
+	  break;
 
     case INT:
-      int i = popInt(stack);
+      f = (float)popInt(stack);
       if (peeked)
       {
-        pushInt(stack, i);
+        pushInt(stack, (int)f);
         peeked = false;
       }
-      return (float) i;
+	  break;
 
     case FLOAT:
-      float f = popFloat(stack);
+      f = popFloat(stack);
       if (peeked)
       {
         pushFloat(stack, f);
         peeked = false;
       }
-      return (float) f;
-
-    default:
-      byte b = popByte(stack);
-      if (peeked)
-      {
-        pushByte(stack, b);
-        peeked = false;
-      }
-      return (float) b;
+      break;
 
   }
+  return f;
 }

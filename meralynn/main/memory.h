@@ -34,7 +34,7 @@ class memory
     bool clearVars(int processID);
     int getSize(char type,stack::_stack* stack);
     int getStartPos(int size);
-    int getNextStartPos(int index);
+
 
 };
 
