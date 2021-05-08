@@ -3,12 +3,10 @@
 
 #pragma once
 #include "Arduino.h"
-#include "FAT.h"
-#include "memory.h"
-#include "process.h"
+
 
 #define MAX_COMMAND_ARGS 3
-
+#define MAX_COMMAND_SIZE 12
 
 class terminal
 {

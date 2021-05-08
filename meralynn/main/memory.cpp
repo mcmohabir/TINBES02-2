@@ -1,15 +1,7 @@
 #include "memory.h"
 
+#include "instruction_set.h"
 stack Stack;
-
-bool memory::initMemory()
-{
-  /*
-    memTable[0].name = "a";
-    memTable[0].processID = 1;
-  */
-}
-
 
 bool memory::storeEntry(byte name, int processID, stack::_stack* stack) {
 
@@ -20,7 +12,7 @@ bool memory::storeEntry(byte name, int processID, stack::_stack* stack) {
   if (inMemory != -1)
     deleteEntry(inMemory);
 
-  char type = Stack.popByte(stack); // Type next on stack
+  byte type = Stack.popByte(stack); // Type next on stack
   int size = getSize(type, stack);
 
   int address = getStartPos(size);
@@ -66,13 +58,13 @@ int memory::getSize(char type, stack::_stack* stack)
 {
   switch (type)
   {
-    case 'I':
+    case INT:
       return 2;
-    case 'F':
+    case FLOAT:
       return 4;
-    case 'C':
+    case CHAR:
       return 1;
-    case 'S':
+    case STRING:
       return Stack.popByte(stack);   //size next on stack
   }
 }
@@ -168,23 +160,23 @@ bool memory::printMemTable()
     Serial.print(F(", data: "));
 
     switch (memTable[i].type) {
-      case 'I':
+      case INT:
         Serial.print(int(word(memory[memTable[i].address],
                               memory[memTable[i].address + 1])));
         break;
 
-      case 'C':
+      case CHAR:
         Serial.print(char(memory[memTable[i].address]));
         break;
 
-      case 'S':
+      case STRING:
         char string[memTable[i].size + 1];
         for (int x = 0; x < memTable[i].size; x++)
           string[x] = char(memory[memTable[i].address + x]);
         Serial.print(string);
         break;
 
-      case 'F':
+      case FLOAT:
         float f = 0.0;
         byte* b = (byte*) &f;
         for (int x = 0; x < 4; x++)

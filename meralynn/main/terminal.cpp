@@ -1,5 +1,8 @@
 #include "terminal.h"
-memory Memory;
+#include "FAT.h"
+// #include "memory.h"
+#include "process.h"
+// memory Memory;
 process process;
 
 // #define DEBUG
@@ -38,7 +41,6 @@ terminal::terminal()
   }
 
   fat::initFAT();
-  Memory.initMemory();
 
 }
 

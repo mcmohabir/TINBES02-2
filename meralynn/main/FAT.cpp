@@ -174,7 +174,7 @@ int fat::getFreeStartPos(int size)
 
         // Check if file fits between current file and next file or end
         if (size < getNextFileStartPos(i) - (file.beginPos + file.length))
-          return (file.beginPos + file.length) + 1;
+          return (file.beginPos + file.length);
 
         firstFile = false;
       }
@@ -272,7 +272,7 @@ bool fat::listFiles()
       Serial.print(F("\t\t"));
       Serial.print(file.beginPos);               // Start byte on disk
       Serial.print(F("/"));
-      Serial.print(file.beginPos + file.length);  // End byte on disk
+      Serial.print(file.beginPos + file.length -1);  // End byte on disk
       Serial.print(F("\t("));
       Serial.print(file.length);                  // Filesize
       Serial.println(F(" bytes)"));

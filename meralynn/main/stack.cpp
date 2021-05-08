@@ -1,5 +1,5 @@
 #include "stack.h"
-
+#include "instruction_set.h"
 // ===============================================================
 // Byte
 bool stack::pushByte(_stack* stack, byte elem) {
@@ -20,7 +20,7 @@ byte stack::popByte(_stack* stack) {
 bool stack::pushChar(_stack* stack, char elem)
 {
   pushByte(stack, elem);
-  pushByte(stack, 'C');
+  pushByte(stack, CHAR);
   return true;
 }
 
@@ -37,7 +37,7 @@ bool stack::pushInt(_stack* stack, int elem)
 {
   pushByte(stack, highByte(elem));
   pushByte(stack, lowByte(elem));
-  pushByte(stack, 'I'); // veranderen naar datatype INT
+  pushByte(stack, INT); // veranderen naar datatype INT
   return true;
 }
 
@@ -59,7 +59,7 @@ bool stack::pushFloat(_stack* stack, float elem)
   for (int i = 3; i >= 0; i--)
     pushByte(stack, b[i]);
 
-  pushByte(stack, 'F'); // Veranderen naar datatype
+  pushByte(stack, FLOAT); // Veranderen naar datatype
   return true;
 }
 
@@ -85,7 +85,7 @@ bool stack::pushString(_stack* stack, char* elem)
     pushByte(stack, elem[i]);
 
   pushByte(stack, length);
-  pushByte(stack, 'S'); // Veranderen naar datatype
+  pushByte(stack, STRING); // Veranderen naar datatype
 }
 
 char* stack::popString(_stack* stack)
@@ -111,7 +111,7 @@ float stack::popVal(_stack* stack)
   byte type = popByte(stack);
   switch (type)
   {
-    case 'C':
+    case CHAR:
       char c = popChar(stack);
       if (peeked)
       {
@@ -120,7 +120,7 @@ float stack::popVal(_stack* stack)
       }
       return (float) c;
 
-    case 'I':
+    case INT:
       int i = popInt(stack);
       if (peeked)
       {
@@ -129,7 +129,7 @@ float stack::popVal(_stack* stack)
       }
       return (float) i;
 
-    case 'F':
+    case FLOAT:
       float f = popFloat(stack);
       if (peeked)
       {

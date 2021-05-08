@@ -4,6 +4,7 @@
 #pragma once
 #include "Arduino.h"
 
+
 #define STACKSIZE 32
 class stack
 {
@@ -12,14 +13,11 @@ class stack
   	  byte stack[STACKSIZE];
   	  uint_least8_t sp = 0;
   	};
-	
+
     bool pushByte(_stack* stack, byte elem);
     byte popByte(_stack* stack);
+	float popVal(_stack* stack);
     int procID;
-
-
-
-  private:
 
 
     bool peeked = false;
@@ -34,7 +32,7 @@ class stack
     float popFloat(_stack* stack);
     char* popString(_stack* stack);
 
-    float popVal(_stack* stack);
+
     float peek(_stack* stack);
 };
 

@@ -5,7 +5,6 @@
 #include "Arduino.h"
 #include "stack.h"
 
-
 #define TABLE_SIZE 25
 #define MEM_SIZE 256
 
@@ -19,7 +18,7 @@ class memory
 	typedef struct {
       byte name;
       int processID;
-      char type;
+      byte type;
       unsigned int address;
       unsigned int size;
     } memVar;

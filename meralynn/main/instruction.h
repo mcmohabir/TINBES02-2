@@ -8,9 +8,9 @@
 class instruction
 {
   public:
-    static bool execute(int id);
-    static bool suspend(int id);
-    static bool kill(int id);
+	static void valToStack(process::proc* process, byte datatype);
+	static void unaryOp(process::proc* process, byte operation);
+	static void print(process::proc* process, bool newline=false);
 };
 
 #endif

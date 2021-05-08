@@ -2,12 +2,85 @@
 #include "process.h"
 #include "memory.h"
 #include "instruction.h"
+#include "instruction_set.h"
+#include "FAT.h"
+
+
 memory memory;
 instruction instruction;
 
 process::process()
 {
   noOfProcesses = 0;
+}
+
+bool process::execute(int index)
+{
+	byte nextInstruction = EEPROM[procTable[index].procCtr++];
+
+	switch (nextInstruction)
+    {
+        // Datatpyes
+        case (CHAR):
+        case (INT):
+        case (STRING):
+        case (FLOAT):
+            instruction::valToStack(procTable+index, nextInstruction);
+            break;
+
+        // Variables
+        case (SET):
+            memory.storeEntry(EEPROM[procTable[index].procCtr++], // Name
+                            procTable[index].processID, // ProcessID
+                            &(procTable[index].stack)); // Stack pointer
+            break;
+        case (GET):
+            memory.getVar(EEPROM[procTable[index].procCtr++], // Name
+                            procTable[index].processID, // ProcessID
+                            &(procTable[index].stack)); // Stack pointer
+            break;
+
+        // Unary operations
+        case (INCREMENT):
+        case (DECREMENT):
+        case (UNARYMINUS):
+        case (ABS):
+        case (SQ):
+        case (SQRT):
+        case (ANALOGREAD):
+        case (DIGITALREAD):
+        case (LOGICALNOT):
+        case (BITWISENOT):
+        case (TOCHAR):
+        case (TOINT):
+        case (TOFLOAT):
+        case (ROUND):
+        case (FLOOR):
+        case (CEIL):
+            instruction::unaryOp(procTable+index, nextInstruction);
+            break;
+
+        // Print
+        case (PRINT):
+            instruction::print(procTable+index);
+            break;
+        case (PRINTLN):
+            instruction::print(procTable+index, true); // Add newline
+            break;
+
+        // Terminating
+        case (STOP):
+            setState(procTable[index].processID, 't');
+            return true; // Terminate process
+        default:
+            Serial.print(F("unknown instruction: "));
+            Serial.println(nextInstruction, DEC);
+            setState(procTable[index].processID, 't');
+            return true; // Terminate process
+    }
+
+    return false; // Program still running (found no STOP)
+
 }
 
 void process::runPrograms()
@@ -34,10 +107,21 @@ void process::runPrograms()
   if (nrOfRunningProcesses == 0)
     return;
 
+	unsigned long startTime = 0;
+    unsigned long runTime = ceil(50 / (double)nrOfRunningProcesses);
+
   for (byte i = 0; i < MAX_PROCESSES; i++)
   {
-    if (procTable[i].state == 'r')
-      instruction.execute(i);
+	  startTime = millis();
+    while (procTable[i].state == 'r' && (millis() - startTime < runTime))
+	{
+	bool terminated = execute(i);
+	  if (terminated)
+		  {
+			  i--;
+			  break; // Goto next program in for loop
+		  }
+	  }
   }
 }
 //==============================================================================
@@ -70,7 +154,7 @@ bool process::startProcess(char* name)
   strcpy(process.name, name);
   process.processID = id;
   process.state = 'r';
-  process.stackPtr = 0;
+  process.stack = {};
   process.filePtr = 0;
   process.procCtr = fat::getStartPos(fileIndex);
 
@@ -142,7 +226,7 @@ bool process::killProcess(int procID)
   process.processID = NULL;
   process.procCtr = NULL;
   process.filePtr = NULL;
-  process.stackPtr = NULL;
+  process.stack = {};
   process.address = NULL;
   procTable[procID] = process;
   noOfProcesses--;
