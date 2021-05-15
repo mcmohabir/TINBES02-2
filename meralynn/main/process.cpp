@@ -66,6 +66,30 @@ bool process::execute(int index)
             instruction::unaryOp(procTable+index, nextInstruction);
             break;
 
+		// Binary operations
+		case (PLUS):
+		case (MINUS):
+		case (TIMES):
+		case (DIVIDEDBY):
+		case (MODULUS):
+		case (EQUALS):
+		case (NOTEQUALS):
+		case (LESSTHAN):
+		case (LESSTHANOREQUALS):
+		case (GREATERTHAN):
+		case (GREATERTHANOREQUALS):
+		case (MIN):
+		case (MAX):
+		case (POW):
+		case (LOGICALAND):
+		case (LOGICALOR):
+		case (LOGICALXOR):
+		case (BITWISEAND):
+		case (BITWISEOR):
+		case (BITWISEXOR):
+		   instruction::binaryOperation(procTable+index, nextInstruction);
+		   break;
+
         // Print
         case (PRINT):
             instruction::print(procTable+index);

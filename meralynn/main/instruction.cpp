@@ -28,14 +28,13 @@ void instruction::valToStack(process::proc* process, byte datatype)
 
 void instruction::unaryOp(process::proc* process, byte operation)
 {
-	// Serial.print("unop: ");
+
     // Peek type so we can push it correctly after a operation
     byte type = stack.popByte(&(process->stack));
 	stack.pushByte(&(process->stack), type);
-	// Serial.println(type);
+
     // Get the data as float from stack
     float value = stack.popVal(&(process->stack));
-	// Serial.println(value);
 
     switch (operation) // Perform operation on data as float
     {
@@ -59,39 +58,38 @@ void instruction::unaryOp(process::proc* process, byte operation)
             break;
         case (ANALOGREAD):
             value = analogRead(value);
-            type = INT; // Push as INT
+            type = INT;
             break;
         case (DIGITALREAD):
             value = digitalRead(value);
-            type = CHAR; // Push as CHAR
+            type = CHAR;
             break;
         case (LOGICALNOT):
             value = (value == 0.0f ? 1 : 0);
-            type = CHAR; // Push as CHAR
+            type = CHAR;
             break;
         case (BITWISENOT):
             Serial.println(F("BITWISENOT"));
             break;
         case (TOCHAR):
             value = round(value);
-            type = CHAR; // Push as CHAR
+            type = CHAR;
             break;
         case (TOINT):
-        case (ROUND): // Does the same as TOINT
+        case (ROUND):
             value = round(value) + 0;
-            type = INT; // Push as INT
+            type = INT;
             break;
         case (TOFLOAT):
-            type = FLOAT; // Push as FLOAT
+            type = FLOAT;
             break;
         case (FLOOR):
             value = floor(value);
-            type = INT; // Push as INT
+            type = INT;
             break;
         case (CEIL):
             value = ceil(value);
-            type = INT; // Push as INT
-            break;
+            type = INT;
         default:
             Serial.print(F("unknown operation: "));
             Serial.println(operation, DEC);
@@ -106,6 +104,117 @@ void instruction::unaryOp(process::proc* process, byte operation)
     else if (type == FLOAT)
         stack.pushFloat(&(process->stack), value);
 }
+
+
+void instruction::binaryOp(process::proc* process, byte operation)
+{
+	//Pop Y first
+	//Peek type
+	float ytype = stack::popByte(&(process->stack));
+	stack::pushByte(&(process->stack), ytype);
+	float y = stack::popVal(&(process->stack));
+
+	//Peek type
+	float xtype = stack::popByte(&(process->stack));
+	stack::pushByte(&(process->stack), xtype);
+	float x = stack::popVal(&(process->stack));
+
+	// Use Z as output value, type determined by the largest type of X or Y
+    float ztype = (xtype > ytype ? xtype : ytype); // Get largest type
+    float z;
+
+	switch (operation)
+	{
+		case (PLUS):
+			z = x + y;
+			break;
+		case (MINUS):
+			z = x - y;
+			break;
+		case (TIMES):
+			z = x * y;
+			break;
+		case (DIVIDEDBY):
+			z = x / y;
+			break;
+		case (MODULUS):
+			z = x % y;
+			break;
+		case(EQUALS):
+			z = (x == y ? 1 : 0);
+			ztype = CHAR;
+			break;
+		case(NOTEQUALS):
+			z = (x != y ? 1: 0);
+			ztype = CHAR; // voor test: toInt()
+			break;
+		case(LESSTHAN):
+			z = (x < y ? 1 : 0);
+			ztype = CHAR;
+			break;
+		case(LESTHANOREQUALS):
+			z = (x <= y ? 1 : 0);
+			ztype = CHAR;
+			break;
+		case(GREATERTHAN):
+			z = (x > y ? 1 : 0);
+			ztype = CHAR;
+			break:
+		case(GREATERTHANOREQUALS):
+			z = (x >= y ? 1 : 0);
+			ztype = CHAR;
+			break:
+		case (MIN):
+			z = (x < y ? x : y);
+			break;
+		case (MAX):
+			z = (x > y ? x : y);
+			break;
+		case (POW):
+			for (int i = 0; i < y; i++)
+				z *= x;
+			break;
+		case (LOGICALAND):
+			z = (x && y ? 1 : 0)
+			ztype = CHAR;
+			break;
+		case(LOGICALOR):
+			z = (x || y ? 1 : 0)
+			ztype = CHAR;
+			break;
+		case(LOGICALXOR):
+			z = (x ^^ y ? 1 : 0);
+			ztype = CHAR;
+			break;
+		case (BITWISEAND):
+			z = (int) x & (int) y;
+			break;
+		case (BITWISEOR):
+			z = (int) x | (int) y;
+			break;
+		case (BITWISEXOR):
+			z = (int) x ^ (int) y;
+			break;
+		default:
+			Serial.print(F("unknown binary operation: "));
+			Serial.println(operation, DEC);
+	}
+
+	// Push output value (float z) back on the stack by ztype
+	if (ztype == CHAR)
+		stack::pushChar(&(process->stack), (char) z);
+	else if (ztype == INT)
+		stack::pushInt(&(process->stack), (int) z);
+	else if (ztype == FLOAT)
+		stack::pushFloat(&(process->stack), z);
+}
+
+
+void instruction::timeOp(process::proc *process, int operation)
+{
+
+}
+
 
 void instruction::print(process::proc* process, bool newline=false)
 {
