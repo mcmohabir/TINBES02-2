@@ -18,11 +18,11 @@ bool process::execute(int index)
 {
 	byte nextInstruction = EEPROM[procTable[index].procCtr++];
 
-	Serial.print(procTable[index].processID, DEC);
-    Serial.print(F(": "));
-    Serial.print(procTable[index].procCtr-1, DEC);
-    Serial.print(F(": "));
-    Serial.println(nextInstruction, DEC);
+	// Serial.print(procTable[index].processID, DEC);
+    // Serial.print(F(": "));
+    // Serial.print(procTable[index].procCtr-1, DEC);
+    // Serial.print(F(": "));
+    // Serial.println(nextInstruction, DEC);
 
 	switch (nextInstruction)
     {
@@ -87,15 +87,42 @@ bool process::execute(int index)
 		case (BITWISEAND):
 		case (BITWISEOR):
 		case (BITWISEXOR):
-		   instruction::binaryOperation(procTable+index, nextInstruction);
+		   instruction::binaryOp(procTable+index, nextInstruction);
 		   break;
+
+	   case (IF):
+	   case (ELSE):
+	   case (ENDIF):
+	   case (LOOP):
+	   case (ENDLOOP):
+	   case (WHILE):
+	   case (ENDWHILE):
+	   		instruction::branchOp(procTable+index, nextInstruction);
+			break;
+
+	   // Time operations
+	   case (DELAY):
+	   case (DELAYUNTIL):
+	   case (MILLIS):
+	   		instruction::timeOp(procTable+index, nextInstruction);
+			break;
+
+		// Arduino operations
+        case (CONSTRAIN):
+        case (MAP):
+        case (PINMODE):
+        case (DIGITALWRITE):
+        case (ANALOGWRITE):
+            instruction::arduinoOp(procTable+index, nextInstruction);
+            break;
+
 
         // Print
         case (PRINT):
-            instruction::print(procTable+index);
+            instruction.print(procTable+index);
             break;
         case (PRINTLN):
-            instruction::print(procTable+index, true); // Add newline
+            instruction.print(procTable+index, true); // Add newline
             break;
 
         // Terminating

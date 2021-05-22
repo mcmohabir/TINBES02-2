@@ -14,7 +14,7 @@ class fat
   public:
     static EERef noOfFiles;
     static bool initFAT();
-    static char* readFile(char* name);
+    static bool readFile(char* name);
     static bool addFile(char* name, int size, char* data);
     static bool deleteFile(char* name);
     static int existsInFAT(char* filename);

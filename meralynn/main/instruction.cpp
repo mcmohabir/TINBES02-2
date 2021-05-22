@@ -91,7 +91,7 @@ void instruction::unaryOp(process::proc* process, byte operation)
             value = ceil(value);
             type = INT;
         default:
-            Serial.print(F("unknown operation: "));
+            Serial.print(F("unknown unary operation: "));
             Serial.println(operation, DEC);
             break;
     }
@@ -110,14 +110,14 @@ void instruction::binaryOp(process::proc* process, byte operation)
 {
 	//Pop Y first
 	//Peek type
-	float ytype = stack::popByte(&(process->stack));
-	stack::pushByte(&(process->stack), ytype);
-	float y = stack::popVal(&(process->stack));
+	float ytype = stack.popByte(&(process->stack));
+	stack.pushByte(&(process->stack), ytype);
+	float y = stack.popVal(&(process->stack));
 
 	//Peek type
-	float xtype = stack::popByte(&(process->stack));
-	stack::pushByte(&(process->stack), xtype);
-	float x = stack::popVal(&(process->stack));
+	float xtype = stack.popByte(&(process->stack));
+	stack.pushByte(&(process->stack), xtype);
+	float x = stack.popVal(&(process->stack));
 
 	// Use Z as output value, type determined by the largest type of X or Y
     float ztype = (xtype > ytype ? xtype : ytype); // Get largest type
@@ -138,7 +138,7 @@ void instruction::binaryOp(process::proc* process, byte operation)
 			z = x / y;
 			break;
 		case (MODULUS):
-			z = x % y;
+			z = (int) x % (int) y;
 			break;
 		case(EQUALS):
 			z = (x == y ? 1 : 0);
@@ -152,18 +152,18 @@ void instruction::binaryOp(process::proc* process, byte operation)
 			z = (x < y ? 1 : 0);
 			ztype = CHAR;
 			break;
-		case(LESTHANOREQUALS):
+		case(LESSTHANOREQUALS):
 			z = (x <= y ? 1 : 0);
 			ztype = CHAR;
 			break;
 		case(GREATERTHAN):
 			z = (x > y ? 1 : 0);
 			ztype = CHAR;
-			break:
+			break;
 		case(GREATERTHANOREQUALS):
 			z = (x >= y ? 1 : 0);
 			ztype = CHAR;
-			break:
+			break;
 		case (MIN):
 			z = (x < y ? x : y);
 			break;
@@ -175,15 +175,15 @@ void instruction::binaryOp(process::proc* process, byte operation)
 				z *= x;
 			break;
 		case (LOGICALAND):
-			z = (x && y ? 1 : 0)
+			z = (x && y ? 1 : 0);
 			ztype = CHAR;
 			break;
 		case(LOGICALOR):
-			z = (x || y ? 1 : 0)
+			z = (x || y ? 1 : 0);
 			ztype = CHAR;
 			break;
 		case(LOGICALXOR):
-			z = (x ^^ y ? 1 : 0);
+			z = (!x != !y ? 1 : 0);
 			ztype = CHAR;
 			break;
 		case (BITWISEAND):
@@ -202,17 +202,141 @@ void instruction::binaryOp(process::proc* process, byte operation)
 
 	// Push output value (float z) back on the stack by ztype
 	if (ztype == CHAR)
-		stack::pushChar(&(process->stack), (char) z);
+		stack.pushChar(&(process->stack), (char) z);
 	else if (ztype == INT)
-		stack::pushInt(&(process->stack), (int) z);
+		stack.pushInt(&(process->stack), (int) z);
 	else if (ztype == FLOAT)
-		stack::pushFloat(&(process->stack), z);
+		stack.pushFloat(&(process->stack), z);
 }
 
-
-void instruction::timeOp(process::proc *process, int operation)
+void instruction::branchOp(process::proc *process, byte operation)
 {
 
+		switch (operation) {
+			case (LOOP):
+				process->loopAddr = process->procCtr;
+				break;
+			case (ENDLOOP):
+				process->procCtr = process->loopAddr;
+				break;
+			case (IF):
+			{
+				float value = stack.peek(&(process->stack));
+				if (value == 0)
+					process->procCtr += EEPROM[process->procCtr]+1; // procCtr al eerder verhoogd;
+																	// ziet next value
+				break;
+			}
+			case (ELSE):
+			{
+				float value = stack.peek(&(process->stack));
+				if (value != 0)
+					process->procCtr += EEPROM[process->procCtr]+1; // procCtr al eerder verhoogd;
+																	// ziet next value
+				break;
+			}
+			case (ENDIF):
+				stack.popVal(&(process->stack));
+				break;
+			case (WHILE):
+			{
+				float value = stack.peek(&(process->stack));
+				if (value == 0)
+					process->procCtr += EEPROM[process->procCtr+1] +2;
+				else{
+					stack.pushByte(&(process->stack), 4 + (EEPROM[process->procCtr]) + EEPROM[process->procCtr + 1]);
+					process->procCtr += 2;
+				}
+				break;
+			}
+			case (ENDWHILE):
+			{
+				byte value = stack.popByte(&(process->stack));
+				process->procCtr -= value;
+				break;
+			}
+			default:
+				Serial.print(F("unknown bran. operation"));
+				Serial.println(operation, DEC);
+
+		}
+}
+
+void instruction::arduinoOp(process::proc *process, byte operation)
+{
+	switch (operation) // Check operation
+   {
+	   case (CONSTRAIN):
+	   {
+		   // Pop in reverse order
+		   int max = (int) stack.popVal(&(process->stack)); // Maximum
+		   int min = (int) stack.popVal(&(process->stack)); // Minimum
+		   int x = (int) stack.popVal(&(process->stack)); // Constrain value
+		   x = min(max(x, min), max); // Constrain x
+		   stack.pushInt(&(process->stack), x); // Push result
+		   break;
+	   }
+	   case (MAP):
+	   {
+		   // Pop in reverse order
+		   int out_max = (int) stack.popVal(&(process->stack));
+		   int out_min = (int) stack.popVal(&(process->stack));
+		   int in_max = (int) stack.popVal(&(process->stack));
+		   int in_min = (int) stack.popVal(&(process->stack));
+		   int x = (int) stack.popVal(&(process->stack)); // Value to map
+		   x = map(x, in_min, in_max, out_min, out_max); // Map x
+		   stack.pushInt(&(process->stack), x); // Push result
+		   break;
+	   }
+	   case (PINMODE):
+	   case (DIGITALWRITE):
+	   case (ANALOGWRITE):
+	   {
+		   // Pop in reverse order
+		   int value = (int) stack.popVal(&(process->stack));
+		   int pin = (int) stack.popVal(&(process->stack));
+		   if (operation == PINMODE)
+			   pinMode(pin, value); // Set pinmode
+		   else if (operation == ANALOGWRITE)
+			   analogWrite(pin, value); // Set analog pin value
+		   else if (operation == DIGITALWRITE)
+			   digitalWrite(pin, value); // Set digital pin value
+		   break;
+	   }
+	   default:
+		   Serial.print(F("unknown arduino operation: "));
+		   Serial.println(operation, DEC);
+   }
+
+
+}
+void instruction::timeOp(process::proc *process, byte operation)
+{
+	/*
+	*	Int overflow: van unsigned long naar een int
+	*	Program spazzes
+	*/
+	switch (operation) {
+		case (DELAY):
+			delay((int) stack.popVal(&(process->stack)));
+		case (DELAYUNTIL):
+		{
+			// Get delay from stack
+			int x = (int) stack.popVal(&(process->stack));
+			if(x > (int) millis())
+			{
+				stack.pushInt(&(process->stack), x);
+				process->procCtr -= 1; // Delay not done, so lower PC
+			}
+			break;
+		}
+		case (MILLIS):
+			stack.pushInt(&(process->stack), (int) millis());
+			break;
+		default:
+			Serial.print(F("unknown time operation: "));
+			Serial.println(operation, DEC);
+	}
 }
 
 

@@ -236,9 +236,7 @@ void terminal::store (char** args)
 
 void terminal::retreive(char** args)
 {
-  char* data = fat::readFile(args[0]);
-  Serial.println(data);
-  delete[] data;
+  fat::readFile(args[0]);
 }
 
 

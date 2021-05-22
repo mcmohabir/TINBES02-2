@@ -58,16 +58,24 @@ bool fat::addFile(char* name, int size, char* data)
 }
 
 
-char* fat::readFile(char* name)
+bool fat::readFile(char* name)
 {
   int entry = existsInFAT(name);
-  if (entry >= 0)
-  {
-    eepromfile file = readFATEntry(entry);
-    return readData(file.beginPos, file.length);
-  }
-  else
-    return "ERROR: no file found";
+  if (entry < 0)
+  	return false;
+
+	eepromfile file = readFATEntry(entry);
+	// return readData(file.beginPos, file.length);
+	for (int i = 0; i < file.length; i++)
+	{
+		Serial.print(EEPROM[file.beginPos+i], DEC);
+		Serial.print(F(" "));
+		if(i > 0 && i != file.length-1 && i % 10==0)
+			Serial.println();
+	}
+	Serial.println();
+	return true;
+
 }
 
 

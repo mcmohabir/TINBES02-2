@@ -23,6 +23,7 @@ class process
       int procCtr;
       byte filePtr;
       // byte stackPtr;
+	  int loopAddr;
 	  stack::_stack stack;
       byte address;
     } proc;

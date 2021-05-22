@@ -12,6 +12,8 @@ class instruction
 	static void unaryOp(process::proc* process, byte operation);
 	static void binaryOp(process::proc* process, byte operation);
 	static void timeOp(process::proc* process, byte operation);
+	static void arduinoOp(process::proc* process, byte operation);
+	static void branchOp(process::proc* process, byte operation);
 	static void print(process::proc* process, bool newline=false);
 };
 
